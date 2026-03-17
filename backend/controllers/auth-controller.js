@@ -69,15 +69,15 @@ class AuthController {
 
     await tokenService.storeRefreshToken(refreshToken, user._id);
 
-    res.cookie('refreshToken', refreshToken, {
+    const cookieOptions = {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       httpOnly: true,
-    });
+      sameSite: 'none',
+      secure: true,
+    };
 
-    res.cookie('accessToken', accessToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      httpOnly: true,
-    });
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+    res.cookie('accessToken', accessToken, cookieOptions);
 
     const userDto = new UserDto(user);
     res.json({ user: userDto, auth: true });
@@ -120,15 +120,15 @@ class AuthController {
       return res.status(500).json({ message: 'Internal error' });
     }
     //put in cookie
-    res.cookie('refreshToken', refreshToken, {
+    const cookieOptions = {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       httpOnly: true,
-    });
+      sameSite: 'none',
+      secure: true,
+    };
 
-    res.cookie('accessToken', accessToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      httpOnly: true,
-    });
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+    res.cookie('accessToken', accessToken, cookieOptions);
     //response send to user 
     const userDto = new UserDto(user);
     res.json({ user: userDto, auth: true });
