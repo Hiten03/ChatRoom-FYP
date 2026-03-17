@@ -162,8 +162,8 @@ io.on('connection', (socket) => {
             }
         }
 
-        const ownerId = roomOwners[roomId];
-        const userId = user.id || user._id;
+        const ownerId = roomOwners[roomId]?.toString();
+        const userId = (user.id || user._id)?.toString();
 
         // Security Check: Social Rooms
         // If room is already cached or just fetched, we need its type to verify
@@ -273,8 +273,8 @@ io.on('connection', (socket) => {
     // Handle role change (owner only)
     socket.on(ACTIONS.SET_ROLE, ({ roomId, targetUserId, role }) => {
         const senderUser = socketUserMapping[socket.id];
-        const senderId = senderUser?.id || senderUser?._id;
-        const ownerId = roomOwners[roomId];
+        const senderId = (senderUser?.id || senderUser?._id)?.toString();
+        const ownerId = roomOwners[roomId]?.toString();
 
         // Only owner can change roles
         if (senderId !== ownerId) return;
