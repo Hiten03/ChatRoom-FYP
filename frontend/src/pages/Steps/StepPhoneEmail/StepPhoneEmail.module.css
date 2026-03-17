@@ -2,7 +2,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 6rem;
+    min-height: 100dvh;
+    padding: 20px;
+}
+
+@media (max-width: 500px) {
+    .cardWrapper {
+        padding: 10px;
+        align-items: center; /* Ensure centered on mobile too */
+    }
 }
 
 .actionButtonWrap {
@@ -11,12 +19,86 @@
     justify-content: center;
 }
 
-.bottomParagraph {
-    color: #c4c5c5;
-    width: 70%;
-    margin: 0 auto;
-    margin-top: 20px;
-    text-align: center;
-    line-height: 1.4;
+.inputLabel {
+    color: var(--text-muted);
     font-size: 0.9rem;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    background: #f1f5f9; /* Light mode default */
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+[data-theme='dark'] .inputWrapper {
+    background: #1e2a3a;
+    border: 1px solid rgba(99, 179, 237, 0.2);
+}
+
+.inputWrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme='dark'] .inputWrapper:focus-within {
+    border-color: rgba(59, 130, 246, 0.6);
+}
+
+.prefix {
+    color: #64748b; /* Light mode */
+    font-weight: 600;
+    font-size: 1rem;
+    user-select: none;
+}
+
+[data-theme='dark'] .prefix {
+    color: #94a3b8;
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background: #cbd5e1; /* Light mode */
+    margin: 0 16px;
+}
+
+[data-theme='dark'] .divider {
+    background: rgba(99, 179, 237, 0.15);
+}
+
+.phoneInput {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #0f172a; /* Light mode */
+    font-size: 1rem;
+    font-weight: 500;
+    width: 100%;
+}
+
+[data-theme='dark'] .phoneInput {
+    color: #e2e8f0;
+}
+
+.phoneInput::placeholder {
+    color: #94a3b8;
+    opacity: 0.6;
+}
+
+.bottomParagraph {
+    color: var(--text-muted);
+    width: 80%;
+    margin: 0 auto;
+    margin-top: 30px;
+    text-align: center;
+    line-height: 1.6;
+    font-size: 0.85rem;
 }

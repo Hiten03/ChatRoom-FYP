@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const navigate = useNavigate();
+    const buttonRef = useRef(null);
+    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+    const [isHovered, setIsHovered] = useState(false);
 
     function startRegister() {
         navigate('/authenticate');
     }
+
+    const handleMouseMove = (e) => {
+        if (!buttonRef.current) return;
+        const rect = buttonRef.current.getBoundingClientRect();
+        setCursorPos({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+        });
+    };
 
     return (
         <div className={styles.heroWrapper}>
@@ -66,10 +78,28 @@ const Home = () => {
                 </p>
 
                 {/* CTA Button */}
-                <button className={styles.ctaButton} onClick={startRegister}>
+                <button 
+                    ref={buttonRef}
+                    className={styles.ctaButton} 
+                    onClick={startRegister}
+                    onMouseMove={handleMouseMove}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
                     <span className={styles.ctaText}>Let's Go</span>
                     <span className={styles.ctaArrow}>→</span>
                     <span className={styles.ctaGlow}></span>
+                    
+                    {/* Glowing Cursor Orb */}
+                    {isHovered && (
+                        <div 
+                            className={styles.cursorOrb} 
+                            style={{ 
+                                left: `${cursorPos.x}px`, 
+                                top: `${cursorPos.y}px` 
+                            }}
+                        />
+                    )}
                 </button>
 
                 {/* Bottom hint */}

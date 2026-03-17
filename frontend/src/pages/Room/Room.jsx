@@ -27,7 +27,11 @@ const Room = () => {
         sendMessage,
         raisedHands,
         toggleHandRaise,
-        accessError
+        accessError,
+        memberCount,
+        maxMembers,
+        roomFullError,
+        updateRoomLimit
     } = useWebRTC(roomId, user);
     
     const navigate = useNavigate();
@@ -43,6 +47,9 @@ const Room = () => {
     // Profile Modal state
     const [selectedProfileId, setSelectedProfileId] = useState(null);
     const hasInitializedMute = useRef(false);
+
+    // Responsive State
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     const currentUserId = user?.id || user?._id;
     const isOwner = currentUserId === ownerId;
@@ -124,6 +131,30 @@ const Room = () => {
 
     const handleManualLeave = () => {
         navigate('/rooms');
+    }
+
+    // Member Limit Logic
+    const [showFullModal, setShowFullModal] = useState(false);
+    useEffect(() => {
+        if (roomFullError) {
+            setShowFullModal(true);
+        }
+    }, [roomFullError]);
+
+    const handleRoomFullClose = () => {
+        setShowFullModal(false);
+        navigate('/rooms');
+    };
+
+    const handleLimitUpdate = (newLimit) => {
+        updateRoomLimit(newLimit);
+    };
+
+    const [isUpdatingLimit, setIsUpdatingLimit] = useState(false);
+    const [tempLimit, setTempLimit] = useState('');
+
+    const toggleChat = () => {
+        setIsChatOpen(!isChatOpen);
     }
 
     useEffect(() => {
@@ -221,6 +252,16 @@ const Room = () => {
                             Demote
                         </button>
                     )}
+
+                    {isModerator && isSelf && (
+                        <button
+                            className={styles.roleBtn}
+                            onClick={() => setIsUpdatingLimit(true)}
+                            style={{marginTop: '4px'}}
+                        >
+                            Set Limit
+                        </button>
+                    )}
                 </div>
             );
         }
@@ -309,14 +350,28 @@ const Room = () => {
                         <RoomTimer startedAt={startedAt} />
                     </div>
                     <div className={styles.topBarActions}>
+                        <div className={`${styles.memberCount} ${maxMembers && memberCount >= maxMembers ? styles.countFull : maxMembers && memberCount === maxMembers - 1 ? styles.countWarning : ''}`}>
+                            <span className={styles.countText}>
+                                {memberCount}
+                                {maxMembers ? ` / ${maxMembers}` : ''}
+                            </span>
+                            <span className={styles.countIcon}>👥</span>
+                        </div>
                         <button className={styles.inviteBtn} onClick={() => {
                             navigator.clipboard.writeText(window.location.href);
                             toast.success("Room link copied!");
                         }}>
-                            Invite
+                            <span className={styles.btnIcon}>👥</span>
+                            <span>Invite</span>
                         </button>
                         <button onClick={handleManualLeave} className={styles.leaveBtn}>
-                            Leave
+                            <span className={styles.btnIcon}>🚪</span>
+                            <span>Leave</span>
+                        </button>
+                        
+                        {/* Mobile Chat Toggle Button */}
+                        <button className={styles.mobileChatBtn} onClick={toggleChat}>
+                            💬
                         </button>
                     </div>
                 </div>
@@ -391,11 +446,16 @@ const Room = () => {
             </div> {/* End mainPanel */}
 
             {/* --- Right Panel (Chat) --- */}
-            <div className={styles.rightPanel}>
+            <div className={`${styles.rightPanel} ${isChatOpen ? styles.rightPanelOpen : ''}`}>
                 <div className={styles.chatHeader}>
                     <h3>Chat</h3>
-                    {/* Settings/filter icon placeholder */}
-                    <span className={styles.chatFilterIcon}>⋮</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        {/* Close button for mobile/tablet drawer */}
+                        <button className={styles.closeChatBtn} onClick={toggleChat}>
+                            ✕
+                        </button>
+                        <span className={styles.chatFilterIcon}>⋮</span>
+                    </div>
                 </div>
                 
                 <div className={styles.chatBody}>
@@ -447,6 +507,57 @@ const Room = () => {
             </div>
 
             <Toaster position="top-right" />
+
+            {/* Room Full Modal */}
+            {showFullModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.fullModal}>
+                        <div className={styles.modalHeader}>
+                            <span style={{fontSize: '40px'}}>🔒</span>
+                            <h2>Room is Full</h2>
+                        </div>
+                        <p>{roomFullError?.message || 'This room has reached its maximum capacity.'}</p>
+                        <button onClick={handleRoomFullClose} className={styles.leaveBtn} style={{width: '100%', justifyContent: 'center'}}>
+                            Back to Rooms
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Update Limit Modal */}
+            {isUpdatingLimit && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.limitModal}>
+                        <h2>Update Member Limit</h2>
+                        <div className={styles.limitOptions}>
+                            {['none', '5', '10', '25', '50', 'custom'].map(type => (
+                                <button 
+                                    key={type}
+                                    className={`${styles.limitPill} ${tempLimit === type ? styles.activePill : ''}`}
+                                    onClick={() => setTempLimit(type)}
+                                >
+                                    {type === 'none' ? 'Unlimited' : type}
+                                </button>
+                            ))}
+                        </div>
+                        <div className={styles.modalActions}>
+                            <button onClick={() => setIsUpdatingLimit(false)} className={styles.cancelBtn}>Cancel</button>
+                            <button onClick={() => {
+                                let finalLimit = null;
+                                if (tempLimit === 'custom') {
+                                    finalLimit = prompt('Enter custom limit (2-100):');
+                                    if (!finalLimit) return;
+                                    finalLimit = parseInt(finalLimit);
+                                } else if (tempLimit !== 'none') {
+                                    finalLimit = parseInt(tempLimit);
+                                }
+                                handleLimitUpdate(finalLimit);
+                                setIsUpdatingLimit(false);
+                            }} className={styles.saveBtn}>Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -72,9 +72,17 @@ const Phone = ({ onNext }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const dispatch = useDispatch();
 
+    const handleChange = (e) => {
+        const val = e.target.value.replace(/\D/g, ''); // Numeric only
+        if (val.length <= 10) {
+            setPhoneNumber(val);
+        }
+    };
+
     async function submit() {
-        if (!phoneNumber) return;
-        const { data } = await sendOtp({ phone: phoneNumber });
+        if (phoneNumber.length !== 10) return;
+        const fullPhoneNumber = `+91${phoneNumber}`;
+        const { data } = await sendOtp({ phone: fullPhoneNumber });
         console.log(data);
         dispatch(setOtp({ phone: data.phone, hash: data.hash }));
         onNext();
@@ -82,15 +90,22 @@ const Phone = ({ onNext }) => {
 
     return (
         <Card title="Enter your phone number" icon="phone">
-            <p style={{ color: '#c4c5c5', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>
-                Please add <strong>+91</strong> before entering your phone number.
+            <p className={styles.inputLabel}>
+                Enter your 10-digit mobile number
             </p>
-            <TextInput
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                fullwidth="true"
-                placeholder="+91..."
-            />
+            <div className={styles.inputWrapper}>
+                <span className={styles.prefix}>+91</span>
+                <div className={styles.divider}></div>
+                <input
+                    className={styles.phoneInput}
+                    value={phoneNumber}
+                    onChange={handleChange}
+                    type="tel"
+                    placeholder="00000 00000"
+                    maxLength={10}
+                    inputMode="numeric"
+                />
+            </div>
             <div>
                 <div className={styles.actionButtonWrap}>
                     <Button text="Next" onClick={submit} />

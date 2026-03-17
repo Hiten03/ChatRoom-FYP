@@ -281,6 +281,11 @@ export const useWebRTC = (roomId, user) => {
     const [startedAt, setStartedAt] = useState(null);
     const rolesRef = useRef({});
     
+    // Member Limit State
+    const [memberCount, setMemberCount] = useState(0);
+    const [maxMembers, setMaxMembers] = useState(null);
+    const [roomFullError, setRoomFullError] = useState(null);
+    
     // Auth Errors
     // eslint-disable-next-line no-unused-vars
     const [accessError, setAccessError] = useState(null);
@@ -331,10 +336,27 @@ export const useWebRTC = (roomId, user) => {
             }
         });
 
+        // Member Limit Listeners
+        socket.current.on(ACTIONS.MEMBER_COUNT_UPDATED, ({ currentCount, maxMembers: newMax }) => {
+            setMemberCount(currentCount);
+            if (newMax !== undefined) setMaxMembers(newMax);
+        });
+
+        socket.current.on(ACTIONS.ROOM_FULL, ({ message, maxMembers }) => {
+            setRoomFullError({ message, maxMembers });
+        });
+
+        socket.current.on(ACTIONS.ROOM_LIMIT_UPDATED, ({ maxMembers: newMax }) => {
+            setMaxMembers(newMax);
+        });
+
         return () => {
             socket.current.off('join-error');
             socket.current.off(ACTIONS.JOINED_ROOM);
             socket.current.off('mutual-follow-broken');
+            socket.current.off(ACTIONS.MEMBER_COUNT_UPDATED);
+            socket.current.off(ACTIONS.ROOM_FULL);
+            socket.current.off(ACTIONS.ROOM_LIMIT_UPDATED);
         }
     }, [ownerId]);
 
@@ -657,6 +679,14 @@ export const useWebRTC = (roomId, user) => {
         });
     };
 
+    // Update room limit (owner only)
+    const updateRoomLimit = (newLimit) => {
+        socket.current.emit(ACTIONS.UPDATE_ROOM_LIMIT, {
+            roomId,
+            maxMembers: newLimit,
+        });
+    };
+
     // Reactions state
     const [reactions, setReactions] = useState([]);
 
@@ -754,6 +784,10 @@ export const useWebRTC = (roomId, user) => {
         messages,
         sendMessage,
         raisedHands,
-        toggleHandRaise
+        toggleHandRaise,
+        memberCount,
+        maxMembers,
+        roomFullError,
+        updateRoomLimit
     };
 };

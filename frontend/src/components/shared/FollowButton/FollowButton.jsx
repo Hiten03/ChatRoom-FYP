@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { followUser, unfollowUser, getFollowStatus } from '../../../http';
 import styles from './FollowButton.module.css';
+import toast from 'react-hot-toast';
 
 const FollowButton = ({ targetUserId, small }) => {
     const { user: currentUser } = useSelector((state) => state.auth);
@@ -27,7 +28,11 @@ const FollowButton = ({ targetUserId, small }) => {
     }, [targetUserId, currentUser]);
 
     // Self-follow check
-    if (!currentUser || currentUser.id === targetUserId) {
+    // user.id comes from DTO (mapped from _id), user._id comes from original JWT/DB
+    const currentUserIdStr = currentUser?.id?.toString() || currentUser?._id?.toString();
+    const targetUserIdStr = targetUserId?.toString();
+
+    if (currentUserIdStr === targetUserIdStr) {
         return null; // Don't show button for self
     }
 
@@ -39,15 +44,30 @@ const FollowButton = ({ targetUserId, small }) => {
         setIsFollowing(!isFollowing); // Optimistic UI update
 
         try {
+            console.log(`[FollowButton] Action for target: ${targetUserIdStr} by ${currentUserIdStr}`);
             if (previousState) {
-                await unfollowUser(targetUserId);
-                window.dispatchEvent(new CustomEvent('follow-change', { detail: { targetUserId, action: 'unfollow' } }));
+                const { data } = await unfollowUser(targetUserId);
+                window.dispatchEvent(new CustomEvent('follow-change', { 
+                    detail: { 
+                        targetUserId: targetUserIdStr, 
+                        action: 'unfollow',
+                        followersCount: data.followersCount 
+                    } 
+                }));
             } else {
-                await followUser(targetUserId);
-                window.dispatchEvent(new CustomEvent('follow-change', { detail: { targetUserId, action: 'follow' } }));
+                const { data } = await followUser(targetUserId);
+                window.dispatchEvent(new CustomEvent('follow-change', { 
+                    detail: { 
+                        targetUserId: targetUserIdStr, 
+                        action: 'follow',
+                        followersCount: data.followersCount 
+                    } 
+                }));
             }
         } catch (err) {
             console.error('Follow action failed:', err);
+            const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+            toast.error(msg);
             // Revert on failure
             setIsFollowing(previousState);
         }

@@ -51,6 +51,9 @@ const Navigation = () => {
     const [notifications, setNotifications] = useState([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const unreadCount = notifications.filter(n => !n.read).length;
+    
+    // Mobile Search State
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
     // Listen to real-time events
     React.useEffect(() => {
@@ -149,6 +152,7 @@ const Navigation = () => {
         try {
             const { data } = await logout();
             dispatch(setAuth(data));
+            setShowLogoutModal(false);
         } catch (err) {
             console.log(err);
         }
@@ -182,8 +186,13 @@ const Navigation = () => {
                 </Link>
 
                 {isAuth && location.pathname === '/rooms' && (
-                    <div className={styles.searchContainer}>
-                        <img src="/images/search-icon.png" alt="search" className={styles.searchIcon} />
+                    <div className={`${styles.searchContainer} ${isSearchExpanded ? styles.expanded : ''}`}>
+                        <img 
+                            src="/images/search-icon.png" 
+                            alt="search" 
+                            className={styles.searchIcon} 
+                            onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                        />
                         <input
                             type="text"
                             placeholder="Search rooms..."
@@ -193,9 +202,10 @@ const Navigation = () => {
                         />
                     </div>
                 )}
-                {isAuth && (
+                
+                {isAuth ? (
                     <div className={styles.navRight}>
-                        
+                        {/* Universal Theme Toggle in Right Section */}
                         <button 
                             onClick={toggleTheme} 
                             className={`${styles.themeToggle} ${theme === 'light' ? styles.themeToggleLight : ''}`}
@@ -206,7 +216,7 @@ const Navigation = () => {
                             </span>
                         </button>
 
-                        <h3>{user?.name}</h3>
+                        <h3 className={styles.userName}>{user?.name}</h3>
                         
                         <div className={styles.bellContainer}>
                             <button className={styles.bellBtn} onClick={toggleNotifications}>
@@ -257,8 +267,21 @@ const Navigation = () => {
                             title="Logout"
                         >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16 17L21 12M21 12L16 7M21 12H9M9 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21H9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M16 17L21 12M21 12L16 7M21 12H9M9 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
+                        </button>
+                    </div>
+                ) : (
+                    /* Guest Mode: Only Theme Toggle */
+                    <div className={styles.navRight}>
+                        <button 
+                            onClick={toggleTheme} 
+                            className={`${styles.themeToggle} ${theme === 'light' ? styles.themeToggleLight : ''}`}
+                            title="Toggle Theme"
+                        >
+                            <span className={styles.themeToggleThumb}>
+                                {theme === 'light' ? '☀️' : '🌙'}
+                            </span>
                         </button>
                     </div>
                 )}

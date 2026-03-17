@@ -8,11 +8,12 @@ class FollowService {
         }
         
         try {
-            const newFollow = await FollowModel.create({
+            await FollowModel.create({
                 followerId: new mongoose.Types.ObjectId(followerId),
                 followingId: new mongoose.Types.ObjectId(followingId)
             });
-            return newFollow;
+            // Return updated count
+            return await this.getFollowerCount(followingId);
         } catch (error) {
             // MongoDB duplicate key error code is 11000
             if (error.code === 11000) {
@@ -22,12 +23,21 @@ class FollowService {
         }
     }
 
+    async getFollowerCount(userId) {
+        return await FollowModel.countDocuments({ 
+            followingId: new mongoose.Types.ObjectId(userId) 
+        });
+    }
+
     async unfollowUser(followerId, followingId) {
         const result = await FollowModel.deleteOne({ 
             followerId: new mongoose.Types.ObjectId(followerId), 
             followingId: new mongoose.Types.ObjectId(followingId) 
         });
-        return result.deletedCount > 0;
+        
+        // Return updated count and whether it was deleted
+        const count = await this.getFollowerCount(followingId);
+        return { deleted: result.deletedCount > 0, count };
     }
 
     async getFollowerIds(userId) {

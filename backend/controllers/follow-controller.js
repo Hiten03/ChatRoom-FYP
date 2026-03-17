@@ -7,15 +7,17 @@ class FollowController {
     async followUser(req, res) {
         try {
             const followerId = req.user._id;
-            const followingId = req.params.userId;
-
+            console.log(`[Follow] Attempt: ${followerId} -> ${followingId}`);
+            
             // Check if user exists
             const followingUser = await userService.findUser({ _id: followingId });
             if (!followingUser) {
+                console.warn(`[Follow] Target user ${followingId} not found`);
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            await followService.followUser(followerId, followingId);
+            const followersCount = await followService.followUser(followerId, followingId);
+            console.log(`[Follow] Success. New count for ${followingId}: ${followersCount}`);
 
             // Emit real-time notification to the followed user
             try {
@@ -35,7 +37,11 @@ class FollowController {
                 console.error('Failed to emit follow notification:', err);
             }
 
-            return res.json({ success: true, message: 'Successfully followed user' });
+            return res.json({ 
+                success: true, 
+                message: 'Successfully followed user',
+                followersCount 
+            });
         } catch (error) {
             if (error.message === 'You cannot follow yourself' || error.message === 'You are already following this user') {
                 return res.status(400).json({ message: error.message });
@@ -49,9 +55,11 @@ class FollowController {
         try {
             const followerId = req.user._id;
             const followingId = req.params.userId;
+            console.log(`[Unfollow] Attempt: ${followerId} -X-> ${followingId}`);
 
-            const deleted = await followService.unfollowUser(followerId, followingId);
+            const { deleted, count } = await followService.unfollowUser(followerId, followingId);
             if (deleted) {
+                console.log(`[Unfollow] Success. New count for ${followingId}: ${count}`);
                 // If they were in a social room together, the one who just got unfollowed 
                 // might need to be kicked if the room belongs to the unfollower, OR
                 // if the room belongs to the person who got unfollowed.
@@ -74,7 +82,11 @@ class FollowController {
                     console.error('Failed to emit mutual-follow-broken:', err);
                 }
 
-                return res.json({ success: true, message: 'Successfully unfollowed user' });
+                return res.json({ 
+                    success: true, 
+                    message: 'Successfully unfollowed user',
+                    followersCount: count
+                });
             } else {
                 return res.status(400).json({ message: 'You are not following this user' });
             }

@@ -71,9 +71,14 @@ const ProfileModal = ({ isOwnProfile, userId, onClose }) => {
                 } 
                 // If viewing the target user's profile, their "Followers" count changes
                 else if (prev.id === targetUserId || prev._id === targetUserId) {
-                    newProfile.followersCount = action === 'follow'
-                        ? (newProfile.followersCount || 0) + 1
-                        : Math.max(0, (newProfile.followersCount || 0) - 1);
+                    // Use server-returned count if available, otherwise fallback to manual increment
+                    if (e.detail.followersCount !== undefined) {
+                        newProfile.followersCount = e.detail.followersCount;
+                    } else {
+                        newProfile.followersCount = action === 'follow'
+                            ? (newProfile.followersCount || 0) + 1
+                            : Math.max(0, (newProfile.followersCount || 0) - 1);
+                    }
                 }
                 
                 return newProfile;

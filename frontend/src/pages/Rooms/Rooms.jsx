@@ -108,8 +108,28 @@ const Rooms = () => {
 
         socket.on(ACTIONS.ROOM_CREATED, handleRoomCreated);
 
+        socket.on(ACTIONS.MEMBER_COUNT_UPDATED, ({ roomId, currentCount, maxMembers }) => {
+            setRooms((prevRooms) => 
+                prevRooms.map((room) => 
+                    room.id === roomId 
+                        ? { ...room, totalPeople: currentCount, maxMembers: maxMembers !== undefined ? maxMembers : room.maxMembers } 
+                        : room
+                )
+            );
+        });
+
+        socket.on(ACTIONS.ROOM_LIMIT_UPDATED, ({ roomId, maxMembers }) => {
+            setRooms((prevRooms) => 
+                prevRooms.map((room) => 
+                    room.id === roomId ? { ...room, maxMembers } : room
+                )
+            );
+        });
+
         return () => {
-            socket.off(ACTIONS.ROOM_CREATED, handleRoomCreated);
+            socket.off(ACTIONS.ROOM_CREATED);
+            socket.off(ACTIONS.MEMBER_COUNT_UPDATED);
+            socket.off(ACTIONS.ROOM_LIMIT_UPDATED);
         };
     }, []);
 

@@ -25,6 +25,7 @@ class RoomsController {
             roomType,
             ownerId: req.user._id,
             password: roomType === 'private' ? password : null,
+            maxMembers: req.body.maxMembers,
         });
 
         const roomDto = new RoomDto(room);

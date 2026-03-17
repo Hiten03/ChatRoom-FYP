@@ -1,11 +1,122 @@
 .cardWrapper {
-    composes: cardWrapper from '../../../App.module.css';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding: 20px;
+    background: var(--bg);
+}
+
+.otpGrid {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 32px 0;
+}
+
+.otpInput {
+    width: 64px;
+    height: 72px;
+    border-radius: 12px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+/* Specific theme overrides if variables aren't specific enough */
+:root[data-theme="dark"] .otpInput {
+    background: #1e2a3a;
+    border-color: rgba(99, 179, 237, 0.2);
+}
+
+:root[data-theme="light"] .otpInput {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.otpInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background: var(--surface2);
+}
+
+.otpInput.filled {
+    border-color: var(--accent);
+    background: var(--surface2);
+}
+
+.errorBox {
+    border-color: #ef4444 !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+.shake {
+    animation: shake 0.6s ease-in-out;
 }
 
 .bottomParagraph {
-    composes: bottomParagraph from '../StepPhoneEmail/StepPhoneEmail.module.css';
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-top: 30px;
+    text-align: center;
 }
 
 .actionButtonWrap {
-    composes: actionButtonWrap from '../StepPhoneEmail/StepPhoneEmail.module.css';
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.resendWrapper {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.resendText {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.resendLink {
+    color: var(--accent);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 5px;
+}
+
+.resendLink:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.resendLink.disabled {
+    color: var(--text-muted);
+    cursor: disabled;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+@media (max-width: 500px) {
+    .otpGrid {
+        gap: 10px;
+    }
+    .otpInput {
+        width: 52px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
 }
