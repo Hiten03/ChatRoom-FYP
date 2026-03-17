@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Card from '../../../components/shared/Card/Card';
-import TextInput from '../../../components/shared/TextInput/TextInput';
 import Button from '../../../components/shared/Button/Button';
 import styles from './StepOtp.module.css';
 import { verifyOtp, sendOtp } from '../../../http';

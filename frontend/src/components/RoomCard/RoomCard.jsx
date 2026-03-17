@@ -27,7 +27,6 @@ const RoomCard = ({ room, onDelete }) => {
 
     const currentCount = room.speakers.length + (room.totalPeople - room.speakers.length > 0 ? room.totalPeople - room.speakers.length : 0);
     const isFull = room.maxMembers !== null && currentCount >= room.maxMembers;
-    const isOwner = room.ownerId?._id === (user?.id || user?._id) || room.ownerId === (user?.id || user?._id);
 
     return (
         <>
