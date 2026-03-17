@@ -278,6 +278,7 @@ export const useWebRTC = (roomId, user) => {
     const [roles, setRoles] = useState({});
     const [ownerId, setOwnerId] = useState(null);
     const [isModerator, setIsModerator] = useState(false);
+    const [startedAt, setStartedAt] = useState(null);
     const rolesRef = useRef({});
     
     // Auth Errors
@@ -315,11 +316,12 @@ export const useWebRTC = (roomId, user) => {
             setAccessError(message);
         });
 
-        socket.current.on(ACTIONS.JOINED_ROOM, ({ role, isModerator, ownerId, roles }) => {
+        socket.current.on(ACTIONS.JOINED_ROOM, ({ role, isModerator, ownerId, roles, startedAt }) => {
             setRoles(roles);
             rolesRef.current = roles;
             setIsModerator(isModerator);
             setOwnerId(ownerId);
+            setStartedAt(startedAt);
         });
 
         socket.current.on('mutual-follow-broken', ({ userA, userB }) => {
@@ -744,6 +746,7 @@ export const useWebRTC = (roomId, user) => {
         handleMute, 
         roles, 
         isModerator,
+        startedAt,
         ownerId, 
         setRole, 
         reactions, 

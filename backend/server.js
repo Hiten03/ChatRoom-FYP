@@ -202,7 +202,8 @@ io.on('connection', (socket) => {
             role: roomRoles[roomId][userId],
             isModerator: userIsOwner,
             ownerId: ownerId,
-            roles: roomRoles[roomId]
+            roles: roomRoles[roomId],
+            startedAt: roomObj?.createdAt
         });
 
         //new Map

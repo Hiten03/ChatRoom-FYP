@@ -6,6 +6,7 @@ import styles from './Room.module.css';
 import { getRoom } from "../../http";
 import toast, { Toaster } from 'react-hot-toast';
 import ProfileModal from '../../components/ProfileModal/ProfileModal';
+import RoomTimer from "../../components/RoomTimer/RoomTimer";
 
 const Room = () => {
     const { id: roomId } = useParams();
@@ -17,6 +18,7 @@ const Room = () => {
         handleMute, 
         roles, 
         isModerator,
+        startedAt,
         ownerId, 
         setRole, 
         reactions, 
@@ -302,7 +304,10 @@ const Room = () => {
             <div className={styles.mainPanel}>
                 {/* --- Top Bar --- */}
                 <div className={styles.topBar}>
-                    <h1 className={styles.roomTitle}>{room?.topic || "Room"}</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <h1 className={styles.roomTitle}>{room?.topic || "Room"}</h1>
+                        <RoomTimer startedAt={startedAt} />
+                    </div>
                     <div className={styles.topBarActions}>
                         <button className={styles.inviteBtn} onClick={() => {
                             navigator.clipboard.writeText(window.location.href);
