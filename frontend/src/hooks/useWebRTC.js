@@ -285,7 +285,7 @@ export const useWebRTC = (roomId, user) => {
     const [accessError, setAccessError] = useState(null);
 
     const captureStarted = useRef(false);
-    const hasJoined = useRef(false);
+    const joinedRoomId = useRef(null);
 
     useEffect(() => {
         socket.current = socketInit();
@@ -346,7 +346,9 @@ export const useWebRTC = (roomId, user) => {
             try {
                 // Wait for user to be available before joining
                 if (!user || (!user.id && !user._id)) return;
-                if (hasJoined.current) return;
+                
+                // Prevent duplicate joins for the SAME room
+                if (joinedRoomId.current === roomId) return;
 
                 localMediaStream.current =
                     await navigator.mediaDevices.getUserMedia({
@@ -363,7 +365,7 @@ export const useWebRTC = (roomId, user) => {
                 });
 
                 socket.current.emit(ACTIONS.JOIN, { roomId, user });
-                hasJoined.current = true;
+                joinedRoomId.current = roomId;
 
             } catch (error) {
                 console.error("Microphone access error:", error);

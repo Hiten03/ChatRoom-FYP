@@ -282,6 +282,14 @@ const Room = () => {
         );
     }
 
+    if (!room || !user) {
+        return (
+            <div className={styles.pageContainer} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ color: '#fff', fontSize: '20px' }}>Loading room...</div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.pageContainer}>
             {selectedProfileId && (

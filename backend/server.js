@@ -166,6 +166,8 @@ io.on('connection', (socket) => {
         const ownerId = roomOwners[roomId]?.toString();
         const userId = (user.id || user._id || user.userId)?.toString();
 
+        console.log(`[JOIN] User: ${userId}, Room: ${roomId}, Owner: ${ownerId}`);
+
         // Security Check: Social Rooms
         // If room is already cached or just fetched, we need its type to verify
         if (!roomObj) {
@@ -174,7 +176,10 @@ io.on('connection', (socket) => {
             } catch (e) {}
         }
         
-        if (roomObj && roomObj.roomType === 'social' && userId !== ownerId) {
+        // OWNER ALWAYS HAS ACCESS
+        const userIsOwner = userId === ownerId;
+
+        if (roomObj && roomObj.roomType === 'social' && !userIsOwner) {
             const isMutual = await followService.areMutualFollows(userId, ownerId);
             if (!isMutual) {
                 socket.emit('join-error', { 
@@ -185,8 +190,8 @@ io.on('connection', (socket) => {
             }
         }
 
-        // Assign role: Owner is ALWAYS speaker, others default to listener if no role yet
-        if (userId === ownerId) {
+        // Assign role: Owner is ALWAYS speaker
+        if (userIsOwner) {
             roomRoles[roomId][userId] = 'speaker';
         } else if (!roomRoles[roomId][userId]) {
             roomRoles[roomId][userId] = 'listener';
@@ -195,7 +200,7 @@ io.on('connection', (socket) => {
         // Emit JOINED_ROOM to the joining user with their role info
         socket.emit(ACTIONS.JOINED_ROOM, {
             role: roomRoles[roomId][userId],
-            isModerator: userId === ownerId,
+            isModerator: userIsOwner,
             ownerId: ownerId,
             roles: roomRoles[roomId]
         });
