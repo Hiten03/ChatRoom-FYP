@@ -184,10 +184,11 @@ io.on('connection', (socket) => {
             }
         }
 
-        // Preserve existing role (e.g., if promoted before a refresh)
-        // Only assign default role if user doesn't already have one
-        if (!roomRoles[roomId][userId]) {
-            roomRoles[roomId][userId] = (userId === ownerId) ? 'speaker' : 'listener';
+        // Assign role: Owner is ALWAYS speaker, others default to listener if no role yet
+        if (userId === ownerId) {
+            roomRoles[roomId][userId] = 'speaker';
+        } else if (!roomRoles[roomId][userId]) {
+            roomRoles[roomId][userId] = 'listener';
         }
 
         //new Map
