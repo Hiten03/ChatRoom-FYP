@@ -285,6 +285,7 @@ export const useWebRTC = (roomId, user) => {
     const [accessError, setAccessError] = useState(null);
 
     const captureStarted = useRef(false);
+    const hasJoined = useRef(false);
 
     useEffect(() => {
         socket.current = socketInit();
@@ -343,13 +344,17 @@ export const useWebRTC = (roomId, user) => {
 
         const startCapture = async () => {
             try {
+                // Wait for user to be available before joining
+                if (!user || (!user.id && !user._id)) return;
+                if (hasJoined.current) return;
+
                 localMediaStream.current =
                     await navigator.mediaDevices.getUserMedia({
                         audio: true
                     });
 
                 addNewClientRef.current({ ...user, muted: true }, () => {
-                    const localElement = audioElements.current[user.id];
+                    const localElement = audioElements.current[user.id || user._id];
 
                     if (localElement) {
                         localElement.volume = 0;
@@ -358,6 +363,7 @@ export const useWebRTC = (roomId, user) => {
                 });
 
                 socket.current.emit(ACTIONS.JOIN, { roomId, user });
+                hasJoined.current = true;
 
             } catch (error) {
                 console.error("Microphone access error:", error);
@@ -367,7 +373,7 @@ export const useWebRTC = (roomId, user) => {
         startCapture();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [user, roomId]);
 
     // Cleanup: stop tracks and leave room on unmount
     useEffect(() => {

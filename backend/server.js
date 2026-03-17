@@ -141,6 +141,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on(ACTIONS.JOIN, async ({ roomId, user }) => {
+        if (!user) return;
         socketUserMapping[socket.id] = user;
 
         // Initialize room roles map if needed
@@ -163,7 +164,7 @@ io.on('connection', (socket) => {
         }
 
         const ownerId = roomOwners[roomId]?.toString();
-        const userId = (user.id || user._id)?.toString();
+        const userId = (user.id || user._id || user.userId)?.toString();
 
         // Security Check: Social Rooms
         // If room is already cached or just fetched, we need its type to verify
