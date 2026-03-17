@@ -191,6 +191,14 @@ io.on('connection', (socket) => {
             roomRoles[roomId][userId] = 'listener';
         }
 
+        // Emit JOINED_ROOM to the joining user with their role info
+        socket.emit(ACTIONS.JOINED_ROOM, {
+            role: roomRoles[roomId][userId],
+            isModerator: userId === ownerId,
+            ownerId: ownerId,
+            roles: roomRoles[roomId]
+        });
+
         //new Map
         const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
 

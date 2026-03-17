@@ -16,6 +16,7 @@ const Room = () => {
         provideRef, 
         handleMute, 
         roles, 
+        isModerator,
         ownerId, 
         setRole, 
         reactions, 
@@ -39,6 +40,7 @@ const Room = () => {
     
     // Profile Modal state
     const [selectedProfileId, setSelectedProfileId] = useState(null);
+    const hasInitializedMute = useRef(false);
 
     const currentUserId = user?.id || user?._id;
     const isOwner = currentUserId === ownerId;
@@ -104,11 +106,19 @@ const Room = () => {
         }
     }, [myRole, currentUserId, handleMute, isMute]);
 
+    // Auto-unmute for moderator on join
     useEffect(() => {
-        if (myRole === 'speaker') {
+        if (!hasInitializedMute.current && isModerator) {
+            setMute(false);
+            hasInitializedMute.current = true;
+        }
+    }, [isModerator]);
+
+    useEffect(() => {
+        if (myRole === 'speaker' || isModerator) {
             handleMute(isMute, currentUserId);
         }
-    }, [isMute, currentUserId, handleMute, myRole]);
+    }, [isMute, currentUserId, handleMute, myRole, isModerator]);
 
     const handleManualLeave = () => {
         navigate('/rooms');

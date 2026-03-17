@@ -277,6 +277,7 @@ export const useWebRTC = (roomId, user) => {
     const clientsRef = useRef([]);
     const [roles, setRoles] = useState({});
     const [ownerId, setOwnerId] = useState(null);
+    const [isModerator, setIsModerator] = useState(false);
     const rolesRef = useRef({});
     
     // Auth Errors
@@ -313,6 +314,13 @@ export const useWebRTC = (roomId, user) => {
             setAccessError(message);
         });
 
+        socket.current.on(ACTIONS.JOINED_ROOM, ({ role, isModerator, ownerId, roles }) => {
+            setRoles(roles);
+            rolesRef.current = roles;
+            setIsModerator(isModerator);
+            setOwnerId(ownerId);
+        });
+
         socket.current.on('mutual-follow-broken', ({ userA, userB }) => {
             // Check if one of these users is the room owner
             if (userA === ownerId || userB === ownerId) {
@@ -322,6 +330,7 @@ export const useWebRTC = (roomId, user) => {
 
         return () => {
             socket.current.off('join-error');
+            socket.current.off(ACTIONS.JOINED_ROOM);
             socket.current.off('mutual-follow-broken');
         }
     }, [ownerId]);
@@ -726,6 +735,7 @@ export const useWebRTC = (roomId, user) => {
         provideRef, 
         handleMute, 
         roles, 
+        isModerator,
         ownerId, 
         setRole, 
         reactions, 

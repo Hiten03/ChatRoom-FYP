@@ -23,6 +23,7 @@ const ACTIONS = {
     // Global User Events
     REGISTER_GLOBAL: 'register-global',
     FOLLOWED: 'followed',
+    JOINED_ROOM: 'joined-room',
 };
 
 module.exports = ACTIONS;
