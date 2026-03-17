@@ -707,6 +707,19 @@
     box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
 }
 
+.dockDivider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+    margin: 0 8px;
+}
+
+.dockEmojisInline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .dockEmojiBtn {
     background: transparent;
     border: none;

@@ -56,6 +56,13 @@ const Room = () => {
 
     // Responsive State
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 767);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const currentUserId = user?.id || user?._id;
     const isOwner = currentUserId === ownerId;
@@ -421,54 +428,97 @@ const Room = () => {
                 </div> 
 
                 <div className={styles.dockContainer}>
-                    {/* Floating Emoji Panel */}
-                    {isEmojiPanelOpen && (
-                        <div className={styles.emojiPanel} ref={emojiPanelRef}>
-                            {EMOJIS.map((emoji, idx) => (
-                                <button 
-                                    key={idx} 
-                                    className={styles.dockEmojiBtn} 
-                                    onClick={() => handleReactionClick(emoji)}
-                                >
-                                    {emoji}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Reactions Toggle */}
-                    <button 
-                        className={`${styles.reactionsToggle} ${isEmojiPanelOpen ? styles.reactionsToggleActive : ''}`}
-                        onClick={() => setIsEmojiPanelOpen(!isEmojiPanelOpen)}
-                    >
-                        <span className={styles.toggleIcon}>😊</span>
-                        <span className={styles.toggleLabel}>React</span>
-                    </button>
-
-                    {/* Primary Mic Button */}
-                    {myRole === 'speaker' && (
-                        <button 
-                            className={`${styles.dockMicBtn} ${isMute ? styles.dockMicMuted : ''}`}
-                            onClick={() => handleMuteClick(currentUserId)}
-                        >
-                            {isMute ? (
-                                <img src="/images/mic-mute.png" alt="mic mute" />
-                            ) : (
-                                <img src="/images/mic.png" alt="mic on" />
+                    {isMobile ? (
+                        <>
+                            {/* Mobile View: Toggle Layout */}
+                            {isEmojiPanelOpen && (
+                                <div className={styles.emojiPanel} ref={emojiPanelRef}>
+                                    {EMOJIS.map((emoji, idx) => (
+                                        <button 
+                                            key={idx} 
+                                            className={styles.dockEmojiBtn} 
+                                            onClick={() => handleReactionClick(emoji)}
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
                             )}
-                        </button>
-                    )}
 
-                    {/* Hand Raise Button */}
-                    <button 
-                        className={`${styles.dockHandBtn} ${hasHandRaised ? styles.dockHandActive : ''}`}
-                        onClick={() => toggleHandRaise(!hasHandRaised)}
-                    >
-                        ✋
-                        {raisedHands.length > 0 && (
-                            <span className={styles.handCountBadge}>{raisedHands.length}</span>
-                        )}
-                    </button>
+                            <button 
+                                className={`${styles.reactionsToggle} ${isEmojiPanelOpen ? styles.reactionsToggleActive : ''}`}
+                                onClick={() => setIsEmojiPanelOpen(!isEmojiPanelOpen)}
+                            >
+                                <span className={styles.toggleIcon}>😊</span>
+                                <span className={styles.toggleLabel}>React</span>
+                            </button>
+
+                            {myRole === 'speaker' && (
+                                <button 
+                                    className={`${styles.dockMicBtn} ${isMute ? styles.dockMicMuted : ''}`}
+                                    onClick={() => handleMuteClick(currentUserId)}
+                                >
+                                    {isMute ? (
+                                        <img src="/images/mic-mute.png" alt="mic mute" />
+                                    ) : (
+                                        <img src="/images/mic.png" alt="mic on" />
+                                    )}
+                                </button>
+                            )}
+
+                            <button 
+                                className={`${styles.dockHandBtn} ${hasHandRaised ? styles.dockHandActive : ''}`}
+                                onClick={() => toggleHandRaise(!hasHandRaised)}
+                            >
+                                ✋
+                                {raisedHands.length > 0 && (
+                                    <span className={styles.handCountBadge}>{raisedHands.length}</span>
+                                )}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            {/* Desktop View: Inline Layout */}
+                            {myRole === 'speaker' && (
+                                <button 
+                                    className={`${styles.dockMicBtn} ${isMute ? styles.dockMicMuted : ''}`}
+                                    onClick={() => handleMuteClick(currentUserId)}
+                                >
+                                    {isMute ? (
+                                        <img src="/images/mic-mute.png" alt="mic mute" />
+                                    ) : (
+                                        <img src="/images/mic.png" alt="mic on" />
+                                    )}
+                                </button>
+                            )}
+
+                            <div className={styles.dockDivider}></div>
+
+                            <div className={styles.dockEmojisInline}>
+                                {EMOJIS.map((emoji, idx) => (
+                                    <button 
+                                        key={idx} 
+                                        className={styles.dockEmojiBtn} 
+                                        onClick={() => sendReaction(emoji)}
+                                    >
+                                        {emoji}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className={styles.dockDivider}></div>
+
+                            <button 
+                                className={`${styles.dockHandBtn} ${hasHandRaised ? styles.dockHandActive : ''}`}
+                                onClick={() => toggleHandRaise(!hasHandRaised)}
+                            >
+                                ✋
+                                {raisedHands.length > 0 && (
+                                    <span className={styles.handCountBadge}>{raisedHands.length}</span>
+                                )}
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
