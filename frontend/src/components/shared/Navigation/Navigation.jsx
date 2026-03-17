@@ -5,6 +5,7 @@ import styles from './Navigation.module.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAuth } from '../../../store/authSlice';
 import ProfileModal from '../../ProfileModal/ProfileModal';
+import LogoutModal from '../LogoutModal/LogoutModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { useTheme } from '../../../context/ThemeContext';
 import { socketInit } from '../../../socket';
@@ -133,6 +134,7 @@ const Navigation = () => {
 
     // Profile Modal state
     const [showProfileModal, setShowProfileModal] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const handleSearchChange = (e) => {
         const value = e.target.value;
@@ -161,6 +163,13 @@ const Navigation = () => {
                     isOwnProfile={true}
                     userId={user.id}
                     onClose={() => setShowProfileModal(false)}
+                />
+            )}
+
+            {showLogoutModal && (
+                <LogoutModal 
+                    onConfirm={logoutUser}
+                    onCancel={() => setShowLogoutModal(false)}
                 />
             )}
 
@@ -244,7 +253,7 @@ const Navigation = () => {
 
                         <button
                             className={styles.logoutButton}
-                            onClick={logoutUser}
+                            onClick={() => setShowLogoutModal(true)}
                             title="Logout"
                         >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
