@@ -433,3 +433,52 @@
     font-size: 14px;
     font-style: italic;
 }
+
+/* ==========================================
+   MOBILE OPTIMIZATIONS
+   ========================================== */
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 0;
+    }
+    
+    .navRight {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Hide the "ChatRoom" text but keep the icon/logo if present */
+    /* Assuming there is a brand class or similar */
+    .brandText {
+        display: none;
+    }
+
+    .navRight {
+        gap: 8px;
+    }
+
+    .themeToggle {
+        width: 50px;
+        margin-right: 4px;
+    }
+
+    .themeToggleThumb {
+        width: 18px;
+        height: 18px;
+    }
+
+    .themeToggleLight .themeToggleThumb {
+        transform: translateX(24px);
+    }
+    
+    .bellBtn {
+        font-size: 20px;
+    }
+    
+    .logoutButton {
+        width: 36px;
+        height: 36px;
+    }
+}

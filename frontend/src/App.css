@@ -85,9 +85,16 @@ h1, h2, h3, h4, h5, h6, button, input, textarea {
 }
 
 .container {
-    width: 1200px;
-    max-width: 90%;
+    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 20px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 16px;
+    }
 }
 
 .cardWrapper {

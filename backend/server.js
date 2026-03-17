@@ -143,7 +143,15 @@ io.on('connection', (socket) => {
 
     socket.on(ACTIONS.JOIN, async ({ roomId, user }) => {
         if (!user) return;
-        socketUserMapping[socket.id] = user;
+        
+        // Normalize user object to ensure _id (MongoDB ID) is always present
+        const normalizedUser = {
+            ...user,
+            _id: (user._id || user.id || user.userId)?.toString(),
+            id: (user.id || user._id || user.userId)?.toString() // Keep id for backward compatibility
+        };
+        
+        socketUserMapping[socket.id] = normalizedUser;
 
         // Initialize room roles map if needed
         if (!roomRoles[roomId]) {

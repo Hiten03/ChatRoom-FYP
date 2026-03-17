@@ -1,12 +1,19 @@
 const followService = require('../services/follow-service');
 const userService = require('../services/user-service');
 const UserDto = require('../dtos/user-dto');
+const mongoose = require('mongoose');
 
 class FollowController {
     // POST /api/follow/:userId
     async followUser(req, res) {
         try {
             const followerId = req.user._id;
+            const followingId = req.params.userId;
+
+            if (!mongoose.Types.ObjectId.isValid(followingId)) {
+                return res.status(400).json({ message: 'Invalid user ID' });
+            }
+
             console.log(`[Follow] Attempt: ${followerId} -> ${followingId}`);
             
             // Check if user exists
@@ -55,6 +62,11 @@ class FollowController {
         try {
             const followerId = req.user._id;
             const followingId = req.params.userId;
+
+            if (!mongoose.Types.ObjectId.isValid(followingId)) {
+                return res.status(400).json({ message: 'Invalid user ID' });
+            }
+
             console.log(`[Unfollow] Attempt: ${followerId} -X-> ${followingId}`);
 
             const { deleted, count } = await followService.unfollowUser(followerId, followingId);
@@ -91,7 +103,8 @@ class FollowController {
                 return res.status(400).json({ message: 'You are not following this user' });
             }
         } catch (error) {
-            return res.status(500).json({ message: 'Internal Server Error' });
+            console.error('Unfollow error:', error);
+            return res.status(500).json({ message: 'Internal Server Error', error: error.message });
         }
     }
 
@@ -101,9 +114,14 @@ class FollowController {
             const followerId = req.user._id;
             const followingId = req.params.userId;
 
+            if (!mongoose.Types.ObjectId.isValid(followingId)) {
+                return res.status(400).json({ message: 'Invalid user ID' });
+            }
+
             const isFollowing = await followService.isFollowing(followerId, followingId);
             return res.json({ isFollowing });
         } catch (error) {
+            console.error('Follow status error:', error);
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
