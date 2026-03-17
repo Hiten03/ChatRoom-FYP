@@ -308,11 +308,63 @@
     font-size: 20px;
     cursor: pointer;
     line-height: 1;
-    padding: 0 4px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 
-.threeDotMenu:hover {
+.threeDotMenu:hover, .menuActive {
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
+}
+
+.menuWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 140px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    z-index: 200;
+    overflow: hidden;
+    animation: scaleIn 0.2s ease forwards;
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.menuItem {
+    width: 100%;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+
+.menuItem:hover {
+    background: var(--surface2);
+}
+
+.menuItem span {
+    font-size: 16px;
 }
 
 .speakerAvatarWrapper {
@@ -516,87 +568,105 @@
    ========================================== */
 
 .dockContainer {
-    position: absolute;
+    position: fixed; /* Desktop sticky bottom */
     bottom: 32px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--navbar-bg);
+    background: rgba(13, 21, 38, 0.85); /* Darker blur base */
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border);
-    border-radius: 9999px; /* Pill */
+    border-radius: 9999px;
     padding: 12px 24px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    box-shadow: 0 10px 40px var(--shadow);
+    justify-content: center;
+    gap: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
     z-index: 100;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 767px) {
     .dockContainer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 0px;
         width: 100%;
-        transform: none;
-        margin: 0;
-        padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        box-sizing: border-box;
-        justify-content: center;
-        gap: 0;
+        border-radius: 0;
+        border-right: none;
+        border-left: none;
+        border-bottom: none;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom)) 16px;
+        background: var(--surface); /* Fallback */
+        background: rgba(20, 25, 39, 0.9);
+        gap: 12px;
     }
+}
 
-    /* The inner pill wrapper */
-    .dockContainer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 16px;
-        right: 16px;
-        bottom: calc(12px + env(safe-area-inset-bottom));
-        background: var(--navbar-bg);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        z-index: -1;
-    }
+.emojiPanel {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 24px; /* Align with React button */
+    background: var(--surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 14px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    z-index: 150;
+}
 
-    .dockMicBtn {
-        width: 44px;
-        height: 44px;
-        margin-right: 8px;
-    }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    .dockEmojis {
-        gap: 6px;
+@media (max-width: 767px) {
+    .emojiPanel {
+        left: 50%;
+        transform: translateX(-50%);
+        width: max-content;
+        max-width: calc(100vw - 32px);
     }
+}
 
-    .dockEmojiBtn {
-        font-size: 1.1rem;
-        padding: 4px;
-        width: 38px;
-        height: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+.reactionsToggle {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 48px;
+    height: 48px;
+}
 
-    .dockHandBtn {
-        width: 38px;
-        height: 38px;
-        font-size: 18px;
-        margin-left: 8px;
-    }
-    
-    .dockDivider {
+.reactionsToggleActive {
+    border-color: #6366f1;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.toggleIcon {
+    font-size: 20px;
+}
+
+.toggleLabel {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+@media (max-width: 767px) {
+    .toggleLabel {
         display: none;
     }
 }
@@ -605,19 +675,19 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: #6366f1;
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
 
 .dockMicBtn:hover {
-    transform: scale(1.05);
-    background: #4f46e5;
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
 }
 
 .dockMicBtn img {
@@ -627,48 +697,36 @@
 }
 
 .dockMicMuted {
-    background: #dc2626; /* Red when muted */
-    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
 }
 
 .dockMicMuted:hover {
-    background: #b91c1c;
-}
-
-.dockMicMuted img {
-    filter: brightness(0) invert(1);
-}
-
-.dockDivider {
-    width: 1px;
-    height: 32px;
-    background: var(--border);
-}
-
-.dockEmojis {
-    display: flex;
-    gap: 8px;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
 }
 
 .dockEmojiBtn {
     background: none;
     border: none;
     font-size: 24px;
-    padding: 8px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dockEmojiBtn:hover {
     transform: scale(1.3);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .dockHandBtn {
     background: var(--surface2);
     border: 1px solid var(--border);
-    font-size: 20px;
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -677,7 +735,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.2s;
+    font-size: 20px;
+    transition: all 0.2s ease;
 }
 
 .dockHandBtn:hover {
@@ -686,8 +745,8 @@
 }
 
 .dockHandActive {
-    background: rgba(247, 183, 49, 0.25);
-    border-color: rgba(247, 183, 49, 0.6);
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
 }
 
 .handCountBadge {
@@ -697,7 +756,7 @@
     background: #ef4444;
     color: #fff;
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 900;
     min-width: 18px;
     height: 18px;
     border-radius: 9px;
@@ -705,7 +764,8 @@
     align-items: center;
     justify-content: center;
     padding: 0 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* --- Emoji Reactions Overlay--- */

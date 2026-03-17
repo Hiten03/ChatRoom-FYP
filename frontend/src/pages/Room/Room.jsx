@@ -39,6 +39,12 @@ const Room = () => {
     const [apiError, setApiError] = useState(null);
     const [isMute, setMute] = useState(true);
 
+    // Toggle States
+    const [isEmojiPanelOpen, setIsEmojiPanelOpen] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState(null); // ID of client whose menu is open
+    const emojiPanelRef = useRef(null);
+    const menuRef = useRef(null);
+
     // Chat UI state
     const [chatInput, setChatInput] = useState("");
     const chatEndRef = useRef(null);
@@ -58,6 +64,24 @@ const Room = () => {
 
     const EMOJIS = ['👏', '❤️', '😂', '😮', '🔥', '👍'];
 
+    // Outside Click Handlers
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (emojiPanelRef.current && !emojiPanelRef.current.contains(event.target)) {
+                if (!event.target.closest(`.${styles.reactionsToggle}`)) {
+                    setIsEmojiPanelOpen(false);
+                }
+            }
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                if (!event.target.closest(`.${styles.threeDotMenu}`)) {
+                    setOpenMenuId(null);
+                }
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     // Auto-scroll on new message
     useEffect(() => {
         if (messages.length > previousMessagesLength.current) {
@@ -71,14 +95,9 @@ const Room = () => {
     // Handle Hand Raise Toasts
     const previousHandsLength = useRef(0);
     useEffect(() => {
-        // Find the newly raised hand by comparing with previous state
         if (raisedHands.length > previousHandsLength.current) {
-            // Find who just raised by finding the diff
-            const newlyRaisedId = raisedHands[raisedHands.length - 1]; // Approximation, but reliable given socket sequentiality
-            
-            // Only alert speaker or owner, and don't alert myself about myself
+            const newlyRaisedId = raisedHands[raisedHands.length - 1]; 
             if ((myRole === 'speaker' || isOwner) && newlyRaisedId !== currentUserId) {
-                // Look up user name
                 const raiser = clients.find(c => c.id === newlyRaisedId);
                 if (raiser) {
                     toast(`${raiser.name} raised their hand`, {
@@ -110,7 +129,6 @@ const Room = () => {
             setMute(true);
             handleMute(true, currentUserId);
         } else if (myRole === 'speaker') {
-            // When promoted to speaker, sync mute state with audio track
             handleMute(isMute, currentUserId);
         }
     }, [myRole, currentUserId, handleMute, isMute]);
@@ -173,7 +191,7 @@ const Room = () => {
 
     const handleMuteClick = (clientId) => {
         if (clientId !== currentUserId) return;
-        if (myRole === 'listener') return; // Listeners can't unmute
+        if (myRole === 'listener') return;
         setMute((isMute) => !isMute);
     }
 
@@ -185,6 +203,11 @@ const Room = () => {
         setRole(targetId, 'listener');
     };
 
+    const handleReactionClick = (emoji) => {
+        sendReaction(emoji);
+        setTimeout(() => setIsEmojiPanelOpen(false), 300);
+    };
+
     // Split clients into speakers and listeners
     const speakers = clients.filter(c => roles[c.id] === 'speaker');
     const listeners = clients.filter(c => roles[c.id] !== 'speaker');
@@ -193,24 +216,54 @@ const Room = () => {
         const isClientOwner = client.id === ownerId;
         const isSelf = client.id === currentUserId;
 
-        // --- SPEAKER CARD ---
         if (isSpeakerSection) {
-            // First speaker (owner/host) or active speakers get a glow. For simplicity, we give owner the ring.
             const hasGlow = isClientOwner;
+            const isMenuOpen = openMenuId === client.id;
 
             return (
                 <div className={`${styles.speakerCard} ${hasGlow ? styles.speakerCardGlowing : ''}`} key={client.id}>
-                    
-                    {/* Top Row: Moderator pill and Context menu */}
                     <div className={styles.speakerCardTop}>
                         {isClientOwner ? (
                             <div className={styles.moderatorPill}>Moderator</div>
                         ) : (
-                            <div></div> // Empty spacer for flex-between
+                            <div></div>
                         )}
                         
-                        {isSelf && (
-                            <button className={styles.threeDotMenu}>⋮</button>
+                        {(isSelf || (isOwner && !isClientOwner)) && (
+                            <div className={styles.menuWrapper}>
+                                <button 
+                                    className={`${styles.threeDotMenu} ${isMenuOpen ? styles.menuActive : ''}`}
+                                    onClick={() => setOpenMenuId(isMenuOpen ? null : client.id)}
+                                >
+                                    ⋮
+                                </button>
+                                {isMenuOpen && (
+                                    <div className={styles.dropdownMenu} ref={menuRef}>
+                                        {isModerator && isSelf && (
+                                            <button 
+                                                className={styles.menuItem}
+                                                onClick={() => {
+                                                    setIsUpdatingLimit(true);
+                                                    setOpenMenuId(null);
+                                                }}
+                                            >
+                                                <span>⚙️</span> Set Limit
+                                            </button>
+                                        )}
+                                        {isOwner && !isClientOwner && (
+                                            <button 
+                                                className={styles.menuItem}
+                                                onClick={() => {
+                                                    handleDemote(client.id);
+                                                    setOpenMenuId(null);
+                                                }}
+                                            >
+                                                <span>⬇️</span> Demote
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
 
@@ -228,7 +281,6 @@ const Room = () => {
                             }}
                             alt="avatar"
                         />
-                        {/* Mic state badge directly at the bottom of the avatar */}
                         <div className={styles.micBadge}>
                             {client.muted ? (
                                 <img src="/images/mic-mute.png" alt="muted" />
@@ -243,30 +295,10 @@ const Room = () => {
                     </div>
                     
                     <h4 className={styles.speakerName}>{client.name}</h4>
-
-                    {isOwner && !isClientOwner && (
-                        <button
-                            className={styles.roleBtn}
-                            onClick={() => handleDemote(client.id)}
-                        >
-                            Demote
-                        </button>
-                    )}
-
-                    {isModerator && isSelf && (
-                        <button
-                            className={styles.roleBtn}
-                            onClick={() => setIsUpdatingLimit(true)}
-                            style={{marginTop: '4px'}}
-                        >
-                            Set Limit
-                        </button>
-                    )}
                 </div>
             );
         }
 
-        // --- LISTENER CARD ---
         return (
             <div className={styles.listenerCard} key={client.id}>
                 <div className={styles.listenerAvatarWrapper} onClick={() => setSelectedProfileId(client.id)} style={{cursor: 'pointer'}}>
@@ -308,16 +340,8 @@ const Room = () => {
                 </p>
                 <button 
                     onClick={() => navigate('/rooms')} 
-                    style={{ 
-                        marginTop: '10px',
-                        background: 'linear-gradient(to right, #00c9a7, #6c63ff)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '999px',
-                        padding: '10px 30px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                    }}
+                    className={styles.leaveBtn}
+                    style={{ background: 'linear-gradient(to right, #00c9a7, #6c63ff)' }}
                 >
                     Go Back to Rooms
                 </button>
@@ -343,7 +367,6 @@ const Room = () => {
                 />
             )}
             <div className={styles.mainPanel}>
-                {/* --- Top Bar --- */}
                 <div className={styles.topBar}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <h1 className={styles.roomTitle}>{room?.topic || "Room"}</h1>
@@ -369,7 +392,6 @@ const Room = () => {
                             <span>Leave</span>
                         </button>
                         
-                        {/* Mobile Chat Toggle Button */}
                         <button className={styles.mobileChatBtn} onClick={toggleChat}>
                             💬
                         </button>
@@ -377,32 +399,53 @@ const Room = () => {
                 </div>
 
                 <div className={styles.mainContentScroll}>
-                    {/* Speakers Section */}
-                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>🎙️ Speakers ({speakers.length})</h3>
-                    <div className={styles.clientListSpeakers}>
-                        {speakers.map((client, index) => renderClient(client, true, index))}
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>🎙️ Speakers ({speakers.length})</h3>
+                        <div className={styles.clientListSpeakers}>
+                            {speakers.map((client, index) => renderClient(client, true, index))}
+                        </div>
                     </div>
-                </div>
 
-                {/* Divider */}
-                <div className={styles.separator}></div>
+                    <div className={styles.separator}></div>
 
-                {/* Listeners Section */}
-                <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>🎧 Listeners ({listeners.length})</h3>
-                    <div className={styles.clientListListeners}>
-                        {listeners.length > 0 ? (
-                            listeners.map((client, index) => renderClient(client, false, index))
-                        ) : (
-                            <p className={styles.emptySection}>No listeners yet</p>
-                        )}
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>🎧 Listeners ({listeners.length})</h3>
+                        <div className={styles.clientListListeners}>
+                            {listeners.length > 0 ? (
+                                listeners.map((client, index) => renderClient(client, false, index))
+                            ) : (
+                                <p className={styles.emptySection}>No listeners yet</p>
+                            )}
+                        </div>
                     </div>
-                </div>
-                </div> {/* End mainContentScroll */}
-                
-                {/* Floating Dock -> To be built in next step, currently placeholder */}
+                </div> 
+
                 <div className={styles.dockContainer}>
+                    {/* Floating Emoji Panel */}
+                    {isEmojiPanelOpen && (
+                        <div className={styles.emojiPanel} ref={emojiPanelRef}>
+                            {EMOJIS.map((emoji, idx) => (
+                                <button 
+                                    key={idx} 
+                                    className={styles.dockEmojiBtn} 
+                                    onClick={() => handleReactionClick(emoji)}
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Reactions Toggle */}
+                    <button 
+                        className={`${styles.reactionsToggle} ${isEmojiPanelOpen ? styles.reactionsToggleActive : ''}`}
+                        onClick={() => setIsEmojiPanelOpen(!isEmojiPanelOpen)}
+                    >
+                        <span className={styles.toggleIcon}>😊</span>
+                        <span className={styles.toggleLabel}>React</span>
+                    </button>
+
+                    {/* Primary Mic Button */}
                     {myRole === 'speaker' && (
                         <button 
                             className={`${styles.dockMicBtn} ${isMute ? styles.dockMicMuted : ''}`}
@@ -416,22 +459,7 @@ const Room = () => {
                         </button>
                     )}
 
-                    <div className={styles.dockDivider}></div>
-
-                    <div className={styles.dockEmojis}>
-                        {EMOJIS.map((emoji, idx) => (
-                            <button 
-                                key={idx} 
-                                className={styles.dockEmojiBtn} 
-                                onClick={() => sendReaction(emoji)}
-                            >
-                                {emoji}
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className={styles.dockDivider}></div>
-
+                    {/* Hand Raise Button */}
                     <button 
                         className={`${styles.dockHandBtn} ${hasHandRaised ? styles.dockHandActive : ''}`}
                         onClick={() => toggleHandRaise(!hasHandRaised)}
@@ -442,15 +470,12 @@ const Room = () => {
                         )}
                     </button>
                 </div>
+            </div>
 
-            </div> {/* End mainPanel */}
-
-            {/* --- Right Panel (Chat) --- */}
             <div className={`${styles.rightPanel} ${isChatOpen ? styles.rightPanelOpen : ''}`}>
                 <div className={styles.chatHeader}>
                     <h3>Chat</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                        {/* Close button for mobile/tablet drawer */}
                         <button className={styles.closeChatBtn} onClick={toggleChat}>
                             ✕
                         </button>
@@ -489,7 +514,6 @@ const Room = () => {
                 </form>
             </div>
 
-            {/* Reactions Overlay */}
             <div className={styles.reactionOverlay}>
                 {reactions.map((r) => {
                     const randomLeft = (r.id % 1) * 80 + 10;
@@ -508,7 +532,6 @@ const Room = () => {
 
             <Toaster position="top-right" />
 
-            {/* Room Full Modal */}
             {showFullModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.fullModal}>
@@ -524,7 +547,6 @@ const Room = () => {
                 </div>
             )}
 
-            {/* Update Limit Modal */}
             {isUpdatingLimit && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.limitModal}>
@@ -562,4 +584,4 @@ const Room = () => {
     );
 };
 
-export default Room;
+export default Room;

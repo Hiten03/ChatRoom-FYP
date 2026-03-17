@@ -1,89 +1,122 @@
 .modalMask {
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.2s ease;
+    padding: 16px;
+    animation: fadeIn 0.2s ease forwards;
 }
 
-@keyframes btnShimmer {
-    0%   { left: -100%; }
-    100% { left: 200%; }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
-.deleteBtn {
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 12px;
-    font-size: 0.95rem;
+.modalBody {
+    width: 100%;
+    max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 767px) {
+    .modalBody {
+        width: 92vw;
+    }
+}
+
+.iconWrapper {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+}
+
+.title {
+    font-size: 1.25rem;
     font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
 }
 
-.deleteBtn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(
-        120deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 100%
-    );
-    transform: skewX(-20deg);
+.subtitle {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 24px 0;
 }
 
-.deleteBtn:hover::after {
-    animation: btnShimmer 0.7s ease forwards;
+.subtitle strong {
+    color: var(--text-primary);
 }
 
-.deleteBtn:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
-    background: linear-gradient(135deg, #f87171, #ef4444);
-}
-
-.deleteBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
 }
 
 .cancelBtn {
     flex: 1;
     padding: 12px;
-    border: 1px solid var(--border);
     border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
     background: var(--surface2);
-    color: var(--text-muted);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .cancelBtn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--text-muted);
-    color: var(--text-primary);
+    background: var(--border);
+}
+
+.deleteBtn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    background: #ef4444;
+    border: none;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.deleteBtn:hover:not(:disabled) {
+    background: #dc2626;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.deleteBtn:active {
+    transform: translateY(0);
+}
+
+.deleteBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
