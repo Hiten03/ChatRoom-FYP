@@ -3,10 +3,20 @@
    ========================================== */
 
 .navbar {
-    padding: 16px 0;
+    padding: 16px; /* Default sidebar padding */
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: calc(16px + env(safe-area-inset-top));
+}
+
+@media (max-width: 767px) {
+    .navbar {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
 }
 
 /* ==========================================

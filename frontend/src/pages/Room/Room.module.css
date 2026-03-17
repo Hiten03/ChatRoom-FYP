@@ -18,6 +18,9 @@
     .pageContainer {
         height: calc(100dvh - 68px);
         flex-direction: column;
+        padding-left: 16px;
+        padding-right: 16px;
+        box-sizing: border-box;
     }
 }
 
@@ -178,7 +181,13 @@
     flex-grow: 1;
     overflow-y: auto;
     padding: 32px;
-    padding-bottom: 120px; /* Space for floating dock */
+    padding-bottom: 120px; /* Space for floating dock on desktop */
+}
+
+@media (max-width: 767px) {
+    .mainContentScroll {
+        padding: 16px 0 90px 0; /* Clear bottom dock and allow edge touch if container has padding */
+    }
 }
 
 .mainContentScroll::-webkit-scrollbar {
@@ -525,31 +534,66 @@
     transition: all 0.3s ease;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 767px) {
     .dockContainer {
-        bottom: 0px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         width: 100%;
-        border-radius: 24px 24px 0 0;
+        transform: none;
+        margin: 0;
         padding: 12px 16px;
         padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        justify-content: space-around;
-        gap: 8px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        box-sizing: border-box;
+        justify-content: center;
+        gap: 0;
+    }
+
+    /* The inner pill wrapper */
+    .dockContainer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 16px;
+        right: 16px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        background: var(--navbar-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        z-index: -1;
     }
 
     .dockMicBtn {
         width: 44px;
         height: 44px;
+        margin-right: 8px;
+    }
+
+    .dockEmojis {
+        gap: 6px;
     }
 
     .dockEmojiBtn {
-        font-size: 22px;
+        font-size: 1.1rem;
         padding: 4px;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .dockHandBtn {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
         font-size: 18px;
+        margin-left: 8px;
     }
     
     .dockDivider {
