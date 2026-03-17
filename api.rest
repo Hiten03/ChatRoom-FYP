@@ -1,0 +1,17 @@
+POST http://localhost:5500/api/send-otp HTTP/1.1
+Content-Type: application/json
+
+{
+    "phone": "+919373531899"
+}
+
+### three hashtags used to separate two different requests
+
+POST http://localhost:5500/api/verify-otp HTTP/1.1
+Content-Type: application/json
+
+{
+    "phone": "+919373531899",
+    "otp": "9826",
+    "hash": "887a9bc1aa99beb26081421bec57223bb63878f20982b14b5e067e122ad1343f.1761552360365"
+}

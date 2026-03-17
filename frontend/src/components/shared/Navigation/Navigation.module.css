@@ -1,0 +1,359 @@
+/* ==========================================
+   NAVIGATION — Glassmorphism Sticky Bar
+   ========================================== */
+
+.navbar {
+    padding: 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ==========================================
+   LOGOUT BUTTON
+   ========================================== */
+
+.logoutButton {
+    background: linear-gradient(135deg, #00c9a7 0%, #0082c8 100%);
+    border: none;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 201, 167, 0.3);
+}
+
+.logoutButton:hover {
+    transform: translateY(-2px) rotate(5deg);
+    box-shadow: 0 6px 15px rgba(0, 201, 167, 0.5);
+    background: linear-gradient(135deg, #00daba 0%, #0093df 100%);
+}
+
+/* ==========================================
+   NAV RIGHT
+   ========================================== */
+
+.navRight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* ==========================================
+   USER NAME
+   ========================================== */
+
+.navRight h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+}
+
+/* ==========================================
+   THEME TOGGLE
+   ========================================== */
+
+.themeToggle {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    border-radius: 20px;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    margin-right: 8px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.themeToggleLight {
+    background: #fde68a;
+    border-color: #fcd34d;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.themeToggleThumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: #0f172a;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s ease;
+    font-size: 14px;
+    z-index: 2;
+    transform: translateX(0); /* Default: dark mode (left) */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}
+
+.themeToggleLight .themeToggleThumb {
+    transform: translateX(30px); /* Light mode: right */
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ==========================================
+   AVATAR UPLOAD FEATURE
+   ========================================== */
+
+.avatarContainer {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.avatarLabel {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(99, 102, 241, 0.7);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    transition: box-shadow 0.25s ease, transform 0.25s ease, filter 0.3s ease;
+}
+
+.avatarLabel:hover .avatar {
+    box-shadow: 0 0 18px rgba(99, 102, 241, 0.75);
+    transform: scale(1.08);
+}
+
+.avatarOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    border-radius: 50%;
+    transition: opacity 0.2s ease;
+}
+
+.avatarLabel:hover .avatarOverlay {
+    opacity: 1;
+}
+
+.cameraIcon {
+    font-size: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.hiddenInput {
+    display: none;
+}
+
+/* Loading State */
+.uploadingAnim {
+    filter: brightness(0.5) blur(1px);
+    pointer-events: none;
+}
+
+.spinnerWrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================
+   SEARCH BAR
+   ========================================== */
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 16px;
+    min-width: 320px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.searchContainer:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    background: var(--surface2);
+}
+
+.searchIcon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+    margin-right: 12px;
+}
+
+.searchInput {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    width: 100%;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.searchInput::placeholder {
+    color: var(--text-muted);
+}
+
+/* ==========================================
+   NOTIFICATIONS BELL & DROPDOWN
+   ========================================== */
+
+.bellContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 0 8px;
+}
+
+.bellBtn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    padding: 4px;
+    transition: transform 0.2s ease;
+}
+
+.bellBtn:hover {
+    transform: scale(1.1);
+}
+
+.badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ef4444; /* red */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--navbar-bg);
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: -10px;
+    margin-top: 12px;
+    width: 320px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px var(--shadow);
+    z-index: 100;
+    overflow: hidden;
+    animation: slideDown 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownHeader {
+    padding: 12px 16px;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.dropdownList {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.dropdownList::-webkit-scrollbar {
+    width: 4px;
+}
+.dropdownList::-webkit-scrollbar-thumb {
+    background: var(--border);
+}
+
+.dropdownItem {
+    padding: 12px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.4;
+    transition: background 0.2s;
+}
+
+.dropdownItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.notifDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+.emptyNotif {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-style: italic;
+}

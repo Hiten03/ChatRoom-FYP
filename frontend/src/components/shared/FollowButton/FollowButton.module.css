@@ -1,0 +1,59 @@
+.btnWrapper {
+    display: inline-flex;
+    margin-top: 4px;
+}
+
+.followBtn {
+    background: transparent;
+    border: 1px solid var(--text-primary);
+    color: var(--text-primary);
+    padding: 4px 12px;
+    border-radius: 9999px; /* pill */
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+}
+
+.followBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.small {
+    padding: 2px 8px;
+    font-size: 10px;
+    margin-top: 0;
+}
+
+.following {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.following:hover {
+    background: var(--accent);
+    opacity: 0.9;
+}
+
+.loading {
+    width: 60px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

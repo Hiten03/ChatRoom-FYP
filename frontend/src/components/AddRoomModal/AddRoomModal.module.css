@@ -1,0 +1,109 @@
+.modalMask {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalBody {
+    width: 50%;
+    max-width: 500px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    position: relative;
+    color: var(--text-primary);
+    box-shadow: 0 10px 40px var(--shadow);
+}
+
+.modalHeader {
+    padding: 30px;
+    border-bottom: 2px solid var(--border);
+}
+
+.roomTypes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.typeBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.typeBox:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.typeBox.active {
+    background: var(--surface2);
+    border-color: var(--accent);
+}
+
+.heading {
+    margin-bottom: 5px;
+}
+
+.subHeading {
+    font-size: 18px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.modalFooter {
+    padding: 30px;
+    text-align: center;
+}
+.modalFooter h2 {
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.footerButton {
+    background: linear-gradient(to right, #00c9a7, #6c63ff);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    width: 200px;
+    justify-content: center;
+    padding: 7px 10px;
+    border-radius: 20px;
+    margin: 0 auto;
+    transition: all 0.3s ease-in-out;
+    border: none;
+    cursor: pointer;
+}
+
+.footerButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.footerButton span {
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.closeButton {
+    position: absolute;
+    right: 3px;
+    top: 8px;
+    background: none;
+}
+
+.passwordSection {
+    margin-top: 15px;
+}

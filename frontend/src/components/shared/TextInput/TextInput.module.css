@@ -1,0 +1,26 @@
+.input {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    padding: 14px 24px;
+    width: 200px; /* Overridable by inline style */
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-family: inherit;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow) inset;
+    letter-spacing: 0.5px;
+}
+
+.input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.input:focus {
+    background: var(--surface);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 15px var(--shadow) inset;
+    transform: translateY(-1px);
+}

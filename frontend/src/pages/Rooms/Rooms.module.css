@@ -1,0 +1,78 @@
+.roomsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+}
+
+.heading {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.heading {
+    position: relative;
+}
+
+.heading::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60%;
+    height: 4px;
+    background: linear-gradient(90deg, #6366f1, #a855f7);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+}
+
+.startRoomButton {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 10px 24px;
+    border-radius: 999px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.startRoomButton span {
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.startRoomButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #10db96 0%, #05ad79 100%);
+}
+
+.startRoomButton:active {
+    transform: translateY(0);
+}
+
+.roomList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.noResults {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
