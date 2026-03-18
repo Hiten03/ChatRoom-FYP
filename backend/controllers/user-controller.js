@@ -12,29 +12,31 @@ class UserController {
             return res.status(400).json({ message: 'Avatar is required!' });
         }
 
-        // Image Base64
-        const buffer = Buffer.from(
-            avatar.replace(/^data:image\/(png|jpg|jpeg|webp);base64,/, ''),
-            'base64'
-        );
-        const imagePath = `${Date.now()}-${Math.round(
-            Math.random() * 1e9
-        )}.png`;
+        // Image Base64 - Only process if it's a data URL
+        let finalAvatarPath = avatar;
+        if (avatar && avatar.startsWith('data:image')) {
+            const buffer = Buffer.from(
+                avatar.replace(/^data:image\/(png|jpg|jpeg|webp);base64,/, ''),
+                'base64'
+            );
+            const imagePath = `${Date.now()}-${Math.round(
+                Math.random() * 1e9
+            )}.png`;
 
-        try {
-            // Ensure the 'storage' folder actually exists
-            const storagePath = path.resolve(__dirname, '../storage');
-            if (!fs.existsSync(storagePath)) {
-                fs.mkdirSync(storagePath, { recursive: true });
+            try {
+                const storagePath = path.resolve(__dirname, '../storage');
+                if (!fs.existsSync(storagePath)) {
+                    fs.mkdirSync(storagePath, { recursive: true });
+                }
+                fs.writeFileSync(path.resolve(storagePath, imagePath), buffer);
+                console.log('New avatar saved for:', imagePath);
+                finalAvatarPath = `/storage/${imagePath}`;
+            } catch (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Could not process the image' });
             }
-
-            // Write the raw buffer directly to disk
-            fs.writeFileSync(path.resolve(storagePath, imagePath), buffer);
-            console.log('New avatar saved for:', imagePath);
-
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({ message: 'Could not process the image' });
+        } else if (avatar === '/images/monkey-avatar.png') {
+            finalAvatarPath = null;
         }
 
         const userId = req.user._id;
@@ -46,7 +48,7 @@ class UserController {
                 return res.status(404).json({ message: 'User not found!' });
             }
             
-            user.avatar = `/storage/${imagePath}`;
+            user.avatar = finalAvatarPath;
             await user.save();
             
             res.json({ user: new UserDto(user), message: 'Avatar updated successfully' });
@@ -109,6 +111,8 @@ class UserController {
                 }
                 fs.writeFileSync(path.resolve(storagePath, imagePath), buffer);
                 user.avatar = `/storage/${imagePath}`;
+            } else if (avatar === '/images/monkey-avatar.png') {
+                user.avatar = null;
             }
 
             await user.save();

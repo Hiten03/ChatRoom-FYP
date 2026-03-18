@@ -252,6 +252,7 @@ const Navigation = () => {
                                 className={styles.avatar}
                                 src={user.avatar ? user.avatar : '/images/monkey-avatar.png'}
                                 onError={(e) => {
+                                    console.error('Avatar load failed for URL:', e.target.src);
                                     e.target.onerror = null;
                                     e.target.src = '/images/monkey-avatar.png';
                                 }}
