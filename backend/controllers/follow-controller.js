@@ -28,10 +28,12 @@ class FollowController {
 
             // Emit real-time notification to the followed user
             try {
-                const { globalSocketUserMapping, io } = require('../server');
+                const socketStorage = require('../socket-storage');
+                const { globalSocketUserMapping, getIO } = socketStorage;
+                const io = getIO();
                 const ACTIONS = require('../actions');
                 
-                if (globalSocketUserMapping.has(followingId)) {
+                if (io && globalSocketUserMapping.has(followingId)) {
                     const followerProfile = await userService.findUser({ _id: followerId });
                     const followerDto = new UserDto(followerProfile);
                     
@@ -50,10 +52,11 @@ class FollowController {
                 followersCount 
             });
         } catch (error) {
+            console.error('[Follow Controller] Error:', error);
             if (error.message === 'You cannot follow yourself' || error.message === 'You are already following this user') {
                 return res.status(400).json({ message: error.message });
             }
-            return res.status(500).json({ message: 'Internal Server Error' });
+            return res.status(500).json({ message: 'Internal Server Error', error: error.message });
         }
     }
 
@@ -78,16 +81,20 @@ class FollowController {
                 // It's easiest to emit a 'mutual-follow-broken' event to BOTH users' global sockets.
                 // Their frontend can check if the current room is social and if the host is the other person.
                 try {
-                    const { globalSocketUserMapping, io } = require('../server');
+                    const socketStorage = require('../socket-storage');
+                    const { globalSocketUserMapping, getIO } = socketStorage;
+                    const io = getIO();
                     
-                    const notifyIds = [followerId.toString(), followingId.toString()];
-                    for (const uId of notifyIds) {
-                        if (globalSocketUserMapping.has(uId)) {
-                            const socketIds = Array.from(globalSocketUserMapping.get(uId));
-                            io.to(socketIds).emit('mutual-follow-broken', {
-                                userA: followerId.toString(),
-                                userB: followingId.toString()
-                            });
+                    if (io) {
+                        const notifyIds = [followerId.toString(), followingId.toString()];
+                        for (const uId of notifyIds) {
+                            if (globalSocketUserMapping.has(uId)) {
+                                const socketIds = Array.from(globalSocketUserMapping.get(uId));
+                                io.to(socketIds).emit('mutual-follow-broken', {
+                                    userA: followerId.toString(),
+                                    userB: followingId.toString()
+                                });
+                            }
                         }
                     }
                 } catch(err) {

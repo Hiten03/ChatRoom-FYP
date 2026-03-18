@@ -100,6 +100,10 @@ const io = require('socket.io')(server, {
     },
 });
 
+const socketStorage = require('./socket-storage');
+socketStorage.setIO(io);
+const { globalSocketUserMapping, socketUserMapping } = socketStorage;
+
 app.use(cookieParser());
 const corsOption = {
     credentials: true,
@@ -119,9 +123,7 @@ app.get('/', (req, res) => {
 
 //Sockets
 
-const socketUserMapping = {};
-const globalSocketUserMapping = new Map(); // { userId -> Set<socketId> }
-module.exports = { socketUserMapping, globalSocketUserMapping, io }; // Export for backend controllers to read online status
+// Sockets initialized via socket-storage
 
 const roomRoles = {};      // { roomId: { userId: 'speaker'|'listener' } }
 const roomOwners = {};     // { roomId: ownerId }
