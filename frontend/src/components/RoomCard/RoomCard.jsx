@@ -18,7 +18,7 @@ const RoomCard = ({ room, onDelete }) => {
         if (room.roomType === 'private' && room.hasPassword) {
             setShowPasswordModal(true);
         } else {
-            navigate(`/room/${room.id}`);
+            window.location.href = `/room/${room.id}`;
         }
     };
 
@@ -113,7 +113,7 @@ const RoomCard = ({ room, onDelete }) => {
             {showPasswordModal && (
                 <PasswordModal
                     room={room}
-                    onSuccess={() => navigate(`/room/${room.id}`)}
+                    onSuccess={() => { window.location.href = `/room/${room.id}`; }}
                     onClose={() => setShowPasswordModal(false)}
                 />
             )}

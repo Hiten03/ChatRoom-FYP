@@ -74,7 +74,7 @@ const Navigation = () => {
                         <button 
                             onClick={() => {
                                 toast.dismiss(t.id);
-                                navigate(`/room/${room.id}`);
+                                window.location.href = `/room/${room.id}`;
                             }}
                             style={{ background: '#a855f7', color: 'white', border: 'none', padding: '6px', borderRadius: '4px', cursor: 'pointer' }}
                         >
@@ -153,6 +153,7 @@ const Navigation = () => {
             const { data } = await logout();
             dispatch(setAuth(data));
             setShowLogoutModal(false);
+            window.location.reload();
         } catch (err) {
             console.log(err);
         }
@@ -235,7 +236,7 @@ const Navigation = () => {
                                                 <div 
                                                     key={n.id} 
                                                     className={styles.dropdownItem}
-                                                    onClick={() => navigate(`/room/${n.roomId}`)}
+                                                    onClick={() => { window.location.href = `/room/${n.roomId}`; }}
                                                 >
                                                     <span className={styles.notifDot}></span>
                                                     <span>{n.text}</span>

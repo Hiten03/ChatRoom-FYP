@@ -57,8 +57,8 @@ const AddRoomModal = ({ onClose }) => {
 
             const { data } = await create(payload);
 
-            // Redirect to room page
-            navigate(`/room/${data.id}`);
+            // Redirect to room page & refresh browser
+            window.location.href = `/room/${data.id}`;
 
         } catch (err) {
             console.log(err.message);
