@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import styles from './AddRoomModal.module.css';
 import TextInput from '../shared/TextInput/TextInput';
 import { createRoom as create, getMutualFollowers } from "../../http";
-import { useNavigate } from 'react-router-dom';
+
 
 const AddRoomModal = ({ onClose }) => {
-    const navigate = useNavigate();
+
     const [roomType, setRoomType] = useState('open');
     const [topic, setTopic] = useState('');
     const [password, setPassword] = useState('');

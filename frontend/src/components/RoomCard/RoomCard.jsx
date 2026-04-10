@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './RoomCard.module.css';
-import { useNavigate } from 'react-router-dom';
+
 import FollowButton from '../shared/FollowButton/FollowButton';
 import { useSelector } from 'react-redux';
 import { deleteRoom } from '../../http';
@@ -12,7 +12,7 @@ const RoomCard = ({ room, onDelete }) => {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-    const navigate = useNavigate();
+
 
     const handleCardClick = () => {
         if (room.roomType === 'private' && room.hasPassword) {
