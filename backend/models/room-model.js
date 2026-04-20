@@ -16,6 +16,12 @@ const roomSchema = new Schema(
             ],
             required: false,
         },
+        maxMembers: {
+            type: Number,
+            default: null, // null means unlimited
+            min: 2,
+            max: 100
+        }
     },
     {
         timestamps: true,

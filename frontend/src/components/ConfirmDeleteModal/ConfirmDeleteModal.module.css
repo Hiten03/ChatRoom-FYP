@@ -1,73 +1,69 @@
 .modalMask {
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.2s ease;
+    padding: 16px;
+    animation: fadeIn 0.2s ease forwards;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; }
-    to { opacity: 1; }
+    to   { opacity: 1; }
 }
 
 .modalBody {
-    width: 90%;
-    max-width: 420px;
+    width: 100%;
+    max-width: 380px;
     background: var(--surface);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 36px 32px;
+    padding: 32px 24px 24px;
     text-align: center;
-    animation: slideUp 0.25s ease;
-    box-shadow: 0 20px 60px var(--shadow), 0 0 30px rgba(239, 68, 68, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
-.iconContainer {
-    width: 64px;
-    height: 64px;
-    background: rgba(239, 68, 68, 0.1);
+@media (max-width: 767px) {
+    .modalBody {
+        width: 92vw;
+    }
+}
+
+.iconWrapper {
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 16px auto;
-}
-
-.trashIcon {
-    width: 32px;
-    height: 32px;
-    filter: brightness(0) saturate(100%) invert(42%) sepia(85%) saturate(2250%) hue-rotate(338deg) brightness(97%) contrast(93%); /* Red-ish tint approx #ef4444 */
-    opacity: 0.9;
+    margin: 0 auto 20px auto;
 }
 
 .title {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 12px 0;
+    margin: 0 0 8px 0;
 }
 
 .subtitle {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     color: var(--text-muted);
-    margin: 0 0 28px 0;
     line-height: 1.5;
+    margin: 0 0 24px 0;
 }
 
 .subtitle strong {
@@ -77,47 +73,50 @@
 .actions {
     display: flex;
     gap: 12px;
-}
-
-.deleteBtn {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: linear-gradient(135deg, #ef4444, #dc2626); /* Red gradient */
-    color: #fff;
-}
-
-.deleteBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
-}
-
-.deleteBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+    justify-content: center;
 }
 
 .cancelBtn {
     flex: 1;
     padding: 12px;
-    border: 1px solid var(--border);
     border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
     background: var(--surface2);
-    color: var(--text-muted);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .cancelBtn:hover {
     background: var(--border);
-    color: var(--text-primary);
+}
+
+.deleteBtn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    background: #ef4444;
+    border: none;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.deleteBtn:hover:not(:disabled) {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.deleteBtn:active {
+    transform: translateY(0);
+}
+
+.deleteBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

@@ -26,8 +26,8 @@ const StepAvatar = ({ onNext }) => {
 
     async function submit() {
         if (!name || loading) return;
-        // Use the custom uploaded avatar from Redux, or fall back to the displayed default image
-        const avatarToSubmit = avatar || image;
+        // Use the custom uploaded avatar from Redux, or null if using default
+        const avatarToSubmit = avatar || null;
         setLoading(true);
         try {
             const { data } = await activate({ name, avatar: avatarToSubmit });

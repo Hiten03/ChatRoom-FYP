@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './RoomCard.module.css';
-import { useNavigate } from 'react-router-dom';
+
 import FollowButton from '../shared/FollowButton/FollowButton';
 import { useSelector } from 'react-redux';
 import { deleteRoom } from '../../http';
@@ -12,22 +12,25 @@ const RoomCard = ({ room, onDelete }) => {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-    const navigate = useNavigate();
+
 
     const handleCardClick = () => {
         if (room.roomType === 'private' && room.hasPassword) {
             setShowPasswordModal(true);
         } else {
-            navigate(`/room/${room.id}`);
+            window.location.href = `/room/${room.id}`;
         }
     };
 
     const isInside = room.speakers.some((speaker) => speaker.id === user?.id || speaker._id === user?._id);
     const host = room.speakers[0] || {};
 
+    const currentCount = room.speakers.length + (room.totalPeople - room.speakers.length > 0 ? room.totalPeople - room.speakers.length : 0);
+    const isFull = room.maxMembers !== null && currentCount >= room.maxMembers;
+
     return (
         <>
-            <div onClick={handleCardClick} className={styles.card}>
+        <div onClick={handleCardClick} className={`${styles.card} ${isFull && !isInside ? styles.cardFull : ''}`}>
                 <div className={styles.topRow}>
                     <h3 className={styles.topic}>{room.topic}</h3>
                     {room.roomType === 'private' && (
@@ -66,6 +69,10 @@ const RoomCard = ({ room, onDelete }) => {
                                 <div className={styles.liveDot}></div>
                                 <span>LIVE</span>
                             </div>
+                        ) : isFull ? (
+                            <div className={styles.fullBadge}>
+                                <span>Full 🔒</span>
+                            </div>
                         ) : (
                             <button className={styles.joinButton}>
                                 Join
@@ -90,8 +97,11 @@ const RoomCard = ({ room, onDelete }) => {
                                 <span>{room.speakers.length}</span>
                                 <img src="/images/user-icon.png" alt="speaker-icon" />
                             </div>
-                            <div className={styles.count}>
-                                <span>{room.totalPeople - room.speakers.length > 0 ? room.totalPeople - room.speakers.length : 0}</span>
+                            <div className={`${styles.count} ${isFull ? styles.countFull : ''}`}>
+                                <span>
+                                    {currentCount}
+                                    {room.maxMembers ? ` / ${room.maxMembers}` : ''}
+                                </span>
                                 <span className={styles.listenerIcon}>👥</span>
                             </div>
                             <img src="/images/add-user.png" alt="add-user" onError={(e) => e.target.style.display='none'} className={styles.addUserIcon}/>
@@ -103,7 +113,7 @@ const RoomCard = ({ room, onDelete }) => {
             {showPasswordModal && (
                 <PasswordModal
                     room={room}
-                    onSuccess={() => navigate(`/room/${room.id}`)}
+                    onSuccess={() => { window.location.href = `/room/${room.id}`; }}
                     onClose={() => setShowPasswordModal(false)}
                 />
             )}

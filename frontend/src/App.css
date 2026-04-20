@@ -4,28 +4,28 @@
     --surface2: #111d33;
     --border: rgba(99,179,237,0.12);
     --text-primary: #e2e8f0;
-    --text-muted: #64748b;
+    --text-muted: #94a3b8;
     --accent: #3b82f6;
     --accent2: #06d6a0;
     --card-bg: #1a1d2e;
     --navbar-bg: rgba(8,14,26,0.85);
-    --input-bg: #111d33;
+    --input-bg: #1e2a3a;
     --shadow: rgba(0,0,0,0.4);
 }
 
 :root[data-theme="light"] {
-    --bg: #f0f4ff;
+    --bg: #f8fafc;
     --surface: #ffffff;
-    --surface2: #e8edf7;
-    --border: rgba(59,130,246,0.15);
+    --surface2: #f1f5f9;
+    --border: rgba(0,0,0,0.08);
     --text-primary: #0f172a;
-    --text-muted: #64748b;
+    --text-muted: #475569;
     --accent: #3b82f6;
     --accent2: #059669;
     --card-bg: #ffffff;
     --navbar-bg: rgba(255,255,255,0.9);
     --input-bg: #f1f5f9;
-    --shadow: rgba(0,0,0,0.08);
+    --shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
 html {
@@ -80,10 +80,22 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+h1, h2, h3, h4, h5, h6, button, input, textarea {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+}
+
 .container {
-    width: 1200px;
-    max-width: 90%;
+    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 20px; /* Desktop padding */
+}
+
+@media (max-width: 767px) {
+    .container {
+        padding: 0 16px;
+        box-sizing: border-box;
+    }
 }
 
 .cardWrapper {

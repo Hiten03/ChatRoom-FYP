@@ -25,6 +25,7 @@ class RoomsController {
             roomType,
             ownerId: req.user._id,
             password: roomType === 'private' ? password : null,
+            maxMembers: req.body.maxMembers,
         });
 
         const roomDto = new RoomDto(room);
@@ -32,57 +33,61 @@ class RoomsController {
         // Notify followers
         if (roomType !== 'private') {
             try {
-                const { globalSocketUserMapping, io } = require('../server');
+                const socketStorage = require('../socket-storage');
+                const { globalSocketUserMapping, getIO } = socketStorage;
+                const io = getIO();
                 const ACTIONS = require('../actions');
 
-                // If open, broadcast to everyone
-                if (roomType === 'open') {
-                    io.emit(ACTIONS.ROOM_CREATED, roomDto);
-                }
-
-                // If social, only broadcast to active mutual followers
-                if (roomType === 'social') {
-                    const mutualIds = await followService.getMutualFollowerIds(req.user._id);
-                    if (mutualIds.length > 0) {
-                        const hostProfile = await userService.findUser({ _id: req.user._id });
-                        const hostDto = new UserDto(hostProfile);
-
-                        const activeMutualSocketIds = [];
-                        for (const mId of mutualIds) {
-                            if (globalSocketUserMapping.has(mId.toString())) {
-                                const socketSet = globalSocketUserMapping.get(mId.toString());
-                                activeMutualSocketIds.push(...Array.from(socketSet));
-                            }
-                        }
-
-                        if (activeMutualSocketIds.length > 0) {
-                            io.to(activeMutualSocketIds).emit('room-started', {
-                                room: roomDto,
-                                host: hostDto
-                            });
-                        }
+                if (io) {
+                    // If open, broadcast to everyone
+                    if (roomType === 'open') {
+                        io.emit(ACTIONS.ROOM_CREATED, roomDto);
                     }
-                } 
-                // If open, notify ALL active followers (not just mutuals)
-                else if (roomType === 'open') {
-                    const followerIds = await followService.getFollowerIds(req.user._id);
-                    if (followerIds.length > 0) {
-                        const hostProfile = await userService.findUser({ _id: req.user._id });
-                        const hostDto = new UserDto(hostProfile);
 
-                        const activeFollowerSocketIds = [];
-                        for (const fId of followerIds) {
-                            if (globalSocketUserMapping.has(fId.toString())) {
-                                const socketSet = globalSocketUserMapping.get(fId.toString());
-                                activeFollowerSocketIds.push(...Array.from(socketSet));
+                    // If social, only broadcast to active mutual followers
+                    if (roomType === 'social') {
+                        const mutualIds = await followService.getMutualFollowerIds(req.user._id);
+                        if (mutualIds.length > 0) {
+                            const hostProfile = await userService.findUser({ _id: req.user._id });
+                            const hostDto = new UserDto(hostProfile);
+
+                            const activeMutualSocketIds = [];
+                            for (const mId of mutualIds) {
+                                if (globalSocketUserMapping.has(mId.toString())) {
+                                    const socketSet = globalSocketUserMapping.get(mId.toString());
+                                    activeMutualSocketIds.push(...Array.from(socketSet));
+                                }
+                            }
+
+                            if (activeMutualSocketIds.length > 0) {
+                                io.to(activeMutualSocketIds).emit('room-started', {
+                                    room: roomDto,
+                                    host: hostDto
+                                });
                             }
                         }
+                    } 
+                    // If open, notify ALL active followers (not just mutuals)
+                    else if (roomType === 'open') {
+                        const followerIds = await followService.getFollowerIds(req.user._id);
+                        if (followerIds.length > 0) {
+                            const hostProfile = await userService.findUser({ _id: req.user._id });
+                            const hostDto = new UserDto(hostProfile);
 
-                        if (activeFollowerSocketIds.length > 0) {
-                            io.to(activeFollowerSocketIds).emit('room-started', {
-                                room: roomDto,
-                                host: hostDto
-                            });
+                            const activeFollowerSocketIds = [];
+                            for (const fId of followerIds) {
+                                if (globalSocketUserMapping.has(fId.toString())) {
+                                    const socketSet = globalSocketUserMapping.get(fId.toString());
+                                    activeFollowerSocketIds.push(...Array.from(socketSet));
+                                }
+                            }
+
+                            if (activeFollowerSocketIds.length > 0) {
+                                io.to(activeFollowerSocketIds).emit('room-started', {
+                                    room: roomDto,
+                                    host: hostDto
+                                });
+                            }
                         }
                     }
                 }

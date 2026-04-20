@@ -71,9 +71,14 @@ const ProfileModal = ({ isOwnProfile, userId, onClose }) => {
                 } 
                 // If viewing the target user's profile, their "Followers" count changes
                 else if (prev.id === targetUserId || prev._id === targetUserId) {
-                    newProfile.followersCount = action === 'follow'
-                        ? (newProfile.followersCount || 0) + 1
-                        : Math.max(0, (newProfile.followersCount || 0) - 1);
+                    // Use server-returned count if available, otherwise fallback to manual increment
+                    if (e.detail.followersCount !== undefined) {
+                        newProfile.followersCount = e.detail.followersCount;
+                    } else {
+                        newProfile.followersCount = action === 'follow'
+                            ? (newProfile.followersCount || 0) + 1
+                            : Math.max(0, (newProfile.followersCount || 0) - 1);
+                    }
                 }
                 
                 return newProfile;
@@ -284,9 +289,6 @@ const ProfileModal = ({ isOwnProfile, userId, onClose }) => {
     return createPortal(
         <div className={styles.modalMask} onClick={onClose}>
             <div className={styles.modalBody} onClick={e => e.stopPropagation()}>
-                <button className={styles.closeButton} onClick={onClose}>
-                    <img src="/images/close.png" alt="close" />
-                </button>
 
                 <div className={styles.headerSection}>
                     <div className={styles.avatarContainer}>
@@ -419,6 +421,12 @@ const ProfileModal = ({ isOwnProfile, userId, onClose }) => {
                             {isSaving ? 'Saving...' : 'Save Profile'}
                         </button>
                     </div>
+                )}
+
+                {!isEditing && (
+                    <button className={styles.closeButton} onClick={onClose}>
+                        <img src="/images/close.png" alt="close" />
+                    </button>
                 )}
 
             </div>

@@ -84,6 +84,7 @@ const cookieParser = require('cookie-parser');
 const { METHODS } = require('http');
 const ACTIONS = require('./actions');
 const roomModel = require('./models/room-model');
+const roomService = require('./services/room-service');
 const followService = require('./services/follow-service');
 const server = require('http').createServer(app);
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -98,6 +99,10 @@ const io = require('socket.io')(server, {
         methods: ['GET', 'POST'],
     },
 });
+
+const socketStorage = require('./socket-storage');
+socketStorage.setIO(io);
+const { globalSocketUserMapping, socketUserMapping } = socketStorage;
 
 app.use(cookieParser());
 const corsOption = {
@@ -118,9 +123,7 @@ app.get('/', (req, res) => {
 
 //Sockets
 
-const socketUserMapping = {};
-const globalSocketUserMapping = new Map(); // { userId -> Set<socketId> }
-module.exports = { socketUserMapping, globalSocketUserMapping, io }; // Export for backend controllers to read online status
+// Sockets initialized via socket-storage
 
 const roomRoles = {};      // { roomId: { userId: 'speaker'|'listener' } }
 const roomOwners = {};     // { roomId: ownerId }
@@ -142,7 +145,15 @@ io.on('connection', (socket) => {
 
     socket.on(ACTIONS.JOIN, async ({ roomId, user }) => {
         if (!user) return;
-        socketUserMapping[socket.id] = user;
+        
+        // Normalize user object to ensure _id (MongoDB ID) is always present
+        const normalizedUser = {
+            ...user,
+            _id: (user._id || user.id || user.userId)?.toString(),
+            id: (user.id || user._id || user.userId)?.toString() // Keep id for backward compatibility
+        };
+        
+        socketUserMapping[socket.id] = normalizedUser;
 
         // Initialize room roles map if needed
         if (!roomRoles[roomId]) {
@@ -190,6 +201,16 @@ io.on('connection', (socket) => {
             }
         }
 
+        // --- MEMBER LIMIT CHECK ---
+        const currentCount = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+        if (roomObj && roomObj.maxMembers && currentCount >= roomObj.maxMembers && !userIsOwner) {
+            socket.emit(ACTIONS.ROOM_FULL, {
+                message: `This room has reached its maximum capacity of ${roomObj.maxMembers} members.`,
+                maxMembers: roomObj.maxMembers
+            });
+            return;
+        }
+
         // Assign role: Owner is ALWAYS speaker
         if (userIsOwner) {
             roomRoles[roomId][userId] = 'speaker';
@@ -224,6 +245,14 @@ io.on('connection', (socket) => {
         });
 
         socket.join(roomId);
+
+        // Broadcast Member Count Update
+        const newCount = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+        io.to(roomId).emit(ACTIONS.MEMBER_COUNT_UPDATED, {
+            roomId,
+            currentCount: newCount,
+            maxMembers: roomObj?.maxMembers
+        });
 
         // Broadcast all roles to everyone in the room
         io.to(roomId).emit(ACTIONS.ROLE_CHANGED, {
@@ -308,6 +337,34 @@ io.on('connection', (socket) => {
             roles: roomRoles[roomId],
             ownerId: ownerId,
         });
+    });
+
+    // Handle Member Limit Update (Moderator only)
+    socket.on(ACTIONS.UPDATE_ROOM_LIMIT, async ({ roomId, maxMembers }) => {
+        const senderUser = socketUserMapping[socket.id];
+        const senderId = (senderUser?.id || senderUser?._id)?.toString();
+        const ownerId = roomOwners[roomId]?.toString();
+
+        if (senderId !== ownerId) return;
+
+        try {
+            await roomService.updateRoomLimit(roomId, maxMembers);
+            
+            // Broadcast to everyone in the room
+            io.to(roomId).emit(ACTIONS.ROOM_LIMIT_UPDATED, {
+                maxMembers
+            });
+
+            // Also emit count update to refresh UI
+            const currentCount = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+            io.to(roomId).emit(ACTIONS.MEMBER_COUNT_UPDATED, {
+                roomId,
+                currentCount,
+                maxMembers
+            });
+        } catch (err) {
+            console.error('Failed to update room limit:', err);
+        }
     });
 
     // Handle emoji reactions
@@ -405,6 +462,13 @@ io.on('connection', (socket) => {
             }
 
             socket.leave(roomId);
+            
+            // Broadcast Member Count Update
+            const remainingCount = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+            io.to(roomId).emit(ACTIONS.MEMBER_COUNT_UPDATED, {
+                roomId,
+                currentCount: remainingCount
+            });
         });
 
         delete socketUserMapping[socket.id];

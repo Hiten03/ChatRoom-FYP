@@ -2,15 +2,20 @@ import React, { useState } from "react";
 import styles from './AddRoomModal.module.css';
 import TextInput from '../shared/TextInput/TextInput';
 import { createRoom as create, getMutualFollowers } from "../../http";
-import { useNavigate } from 'react-router-dom';
+
 
 const AddRoomModal = ({ onClose }) => {
-    const navigate = useNavigate();
+
     const [roomType, setRoomType] = useState('open');
     const [topic, setTopic] = useState('');
     const [password, setPassword] = useState('');
     const [mutuals, setMutuals] = useState([]);
     const [loadingMutuals, setLoadingMutuals] = useState(false);
+    
+    // Member Limit State
+    const [limitType, setLimitType] = useState('none'); // 'none', 5, 10, 25, 50, 'custom'
+    const [customLimit, setCustomLimit] = useState('');
+    const [limitError, setLimitError] = useState('');
 
     React.useEffect(() => {
         if (roomType === 'social') {
@@ -36,10 +41,24 @@ const AddRoomModal = ({ onClose }) => {
                 payload.password = password;
             }
 
+            // Set Member Limit
+            if (limitType === 'none') {
+                payload.maxMembers = null;
+            } else if (limitType === 'custom') {
+                const limit = parseInt(customLimit);
+                if (isNaN(limit) || limit < 2 || limit > 100) {
+                    setLimitError('Please enter a number between 2 and 100');
+                    return;
+                }
+                payload.maxMembers = limit;
+            } else {
+                payload.maxMembers = parseInt(limitType);
+            }
+
             const { data } = await create(payload);
 
-            // Redirect to room page
-            navigate(`/room/${data.id}`);
+            // Redirect to room page & refresh browser
+            window.location.href = `/room/${data.id}`;
 
         } catch (err) {
             console.log(err.message);
@@ -97,6 +116,40 @@ const AddRoomModal = ({ onClose }) => {
                             <span>Private</span>
                         </div>
                     </div>
+
+                    <h2 className={styles.subHeading} style={{marginTop: '25px'}}>Member Limit</h2>
+                    <div className={styles.limitSelector}>
+                        {['none', '5', '10', '25', '50', 'custom'].map((type) => (
+                            <button
+                                key={type}
+                                className={`${styles.limitPill} ${limitType === type ? styles.activeLimit : ''}`}
+                                onClick={() => {
+                                    setLimitType(type);
+                                    setLimitError('');
+                                }}
+                            >
+                                {type === 'none' ? 'No limit' : type === 'custom' ? 'Custom' : type}
+                            </button>
+                        ))}
+                    </div>
+
+                    {limitType === 'custom' && (
+                        <div className={styles.customLimitSection}>
+                            <input 
+                                type="number" 
+                                className={styles.customLimitInput}
+                                placeholder="Enter limit (2-100)"
+                                value={customLimit}
+                                onChange={(e) => {
+                                    setCustomLimit(e.target.value);
+                                    setLimitError('');
+                                }}
+                                min="2"
+                                max="100"
+                            />
+                            {limitError && <p className={styles.errorText}>{limitError}</p>}
+                        </div>
+                    )}
 
                     {roomType === 'private' && (
                         <div className={styles.passwordSection}>

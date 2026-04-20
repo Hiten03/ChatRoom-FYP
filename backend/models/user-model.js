@@ -10,7 +10,8 @@ const userSchema = new Schema(
             required: false,
             get: (avatar) => {
                 if (avatar) {
-                    return `${process.env.BASE_URL}${avatar}`;
+                    const baseUrl = process.env.BASE_URL || 'http://localhost:5500';
+                    return `${baseUrl}${avatar}`;
                 }
                 return avatar;
             },

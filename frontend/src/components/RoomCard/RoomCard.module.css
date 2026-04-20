@@ -28,7 +28,7 @@
 
 .topic {
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0;
     line-height: 1.4;
@@ -49,16 +49,16 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
-    padding: 6px 12px;
+    background: var(--surface2);
+    color: var(--accent);
+    padding: 6px 14px;
     border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     flex-shrink: 0;
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    border: 1px solid var(--border);
 }
 
 .socialIcon {
@@ -88,8 +88,8 @@
 }
 
 .hostName {
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
@@ -123,20 +123,52 @@
 }
 
 .joinButton {
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(to right, #00c9a7, #6c63ff);
     color: #fff;
     border: none;
     border-radius: 999px;
-    padding: 6px 20px;
-    font-weight: 600;
+    padding: 8px 24px;
+    font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.joinButton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    transform: skewX(-20deg);
+}
+
+.joinButton:hover::after {
+    animation: btnShimmer 0.7s ease forwards;
+}
+
+@keyframes btnShimmer {
+    0%   { left: -100%; }
+    100% { left: 200%; }
 }
 
 .joinButton:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(108, 99, 255, 0.5);
+}
+
+.joinButton:active {
+    transform: translateY(0) scale(0.98);
 }
 
 .liveBadge {
@@ -218,4 +250,25 @@
 .deleteBtn img {
     width: 16px;
     height: 16px;
+}
+
+.cardFull {
+    opacity: 0.8;
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.02);
+}
+
+.fullBadge {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.countFull {
+    color: #ef4444 !important;
+    font-weight: 600;
 }

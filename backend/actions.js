@@ -24,6 +24,11 @@ const ACTIONS = {
     REGISTER_GLOBAL: 'register-global',
     FOLLOWED: 'followed',
     JOINED_ROOM: 'joined-room',
+    // Member Limit
+    ROOM_FULL: 'room-full',
+    MEMBER_COUNT_UPDATED: 'member-count-updated',
+    UPDATE_ROOM_LIMIT: 'update-room-limit',
+    ROOM_LIMIT_UPDATED: 'room-limit-updated',
 };
 
 module.exports = ACTIONS;
